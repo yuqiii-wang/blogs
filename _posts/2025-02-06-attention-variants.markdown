@@ -4,11 +4,11 @@ title:  "attention-variants"
 date:   2025-02-06 23:57:10 +0800
 categories: attention
 ---
-This article shows three popular attention variants:
+This article explains three popular attention variants:
 
 * Flash Attention
-* Paged Attention
-* Multi-head Latent Attention
+* Paged Attention (used by vLLM)
+* Multi-head Latent Attention (used by deepseek)
 
 ## Flash Attention
 
@@ -202,7 +202,7 @@ There are two problems to address:
 Paged attention maintains a lookup table that KV caches are stored in individual non-contiguous blocks.
 
 <div style="display: flex; justify-content: center;">
-      <img src="/assets/imgs/paged_attn_lookup_table.png" width="50%" height="30%" alt="paged_attn_lookup_table" />
+      <img src="{{ site.baseurl }}/assets/imgs/paged_attn_lookup_table.png" width="50%" height="30%" alt="paged_attn_lookup_table" />
 </div>
 </br>
 
@@ -213,7 +213,7 @@ Paged attention maintains a lookup table that KV caches are stored in individual
 No need of memory re-allocation for the KV cache for just one token selection among candidate tokens.
 
 <div style="display: flex; justify-content: center;">
-      <img src="/assets/imgs/paged_attn_parallel_sampling.png" width="50%" height="30%" alt="paged_attn_parallel_sampling" />
+      <img src="{{ site.baseurl }}/assets/imgs/paged_attn_parallel_sampling.png" width="50%" height="30%" alt="paged_attn_parallel_sampling" />
 </div>
 </br>
 
