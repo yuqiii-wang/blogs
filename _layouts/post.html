@@ -2,6 +2,8 @@
 <html>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.4/katex.min.css">
     <link rel="stylesheet" href="{{ '/assets/css/syntax.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/style.scss' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/sidebar.css' | relative_url }}">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.4/katex.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.4/contrib/auto-render.min.js"></script>
 <script>
@@ -21,8 +23,18 @@
     <title>{{ page.title }}</title>
 </head>
 <body>
-    <h1>{{ page.title }}</h1>
-    <p><em>{{ page.date | date: "%B %d, %Y" }}</em></p>
-    {{ content }}
+    <div class="sidebar">
+        <h3>Posts</h3>
+        <ul>
+            {% for post in site.posts %}
+            <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="main-content">
+        <h1>{{ page.title }}</h1>
+        <p><em>{{ page.date | date: "%B %d, %Y" }}</em></p>
+        {{ content }}
+    </div>
 </body>
 </html>
