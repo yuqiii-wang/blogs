@@ -1,0 +1,386 @@
+---
+layout: post
+title:  "t-SNE"
+date:   2025-02-08 00:57:10 +0800
+categories: embedding
+---
+
+t-distributed stochastic neighbor embedding (t-SNE) is a statistical method for compressing high-dimensional data by normal distribution mapping.
+
+In other words, for high-dimensional input $\bold{x}\in\mathbb{R}^{d}$ (usually $d \gg 3$), t-SNE aims to produce $\hat{\bold{y}}\in\{\mathbb{R}^{2}, \mathbb{R}^{3}\}$ so that the compressed $\hat{\bold{y}}$ can be visually presented.
+
+## t-SNE Derivation
+
+### The P Matrix by Exponentiated Vector Distance
+
+The similarity of datapoint $$\bold{x}_{j}$$ to datapoint $$\bold{x}_{i}$$ is the conditional probability $$\bold{x}_{j|i}$$ that
+$$\bold{x}_{i}$$ would pick $$\bold{x}_{j}$$ as its neighbor if neighbors were picked in proportion to their probability density under a Gaussian centered at $$\bold{x}_{i}$$.
+
+This can be expressed (for $i\ne j$)
+
+$$
+p_{j|i} = \frac{\exp\big(-\frac{1}{2\sigma^2}||\bold{x}_i-\bold{x}_j||^2\big)
+    }{\sum_{k\ne i}\exp\big(-\frac{1}{2\sigma^2}||\bold{x}_i-\bold{x}_k||^2\big)}
+$$
+
+that the similarity probability $p_{j\|i}$ is defined as vector distance mapped normal distribution ratio.
+
+For singularity point $i=j$, define $p_{i\|i}=0$.
+
+Assume there are $N$ samples, and each sample sampling $p_i$ is treated indiscriminantly such that $1/N$.
+Besides, $i$ and $j$ are interchangeable in sampling; as a result, the probability of selecting both $p_i$ and $p_j$ are
+
+$$
+p_{ij}=\frac{p_{i|j}+p_{j|i}}{2N}
+$$
+
+The full vector distance $P$ matrix is hence given as below.
+For $p_{ij}=p_{ji}$, the $P$ is symmetric.
+
+$$
+P= \begin{bmatrix}
+    0 & p_{12} & p_{13} & \\
+    p_{21} & 0 & p_{23} & \\
+    p_{31} & p_{32} & 0 & \\
+     &  &  & \ddots \\
+\end{bmatrix}
+$$
+
+#### Intrinsic Dimensionality Estimation for Normal Distribution Bandwdith
+
+The scalar $\frac{1}{2\sigma^2}$ adjusts the gap $\bold{x}_i-\bold{x}_j$ that a large $\frac{1}{2\sigma^2}$ tunes the gap to small, and vice versa.
+
+Ideally, $\frac{1}{2\sigma^2}$ should be set such that distinctly different groups of sample points remain distant, spatially close ones are grouped together.
+
+Intrinsic dimensionality refers to the minimum number of latent variables needed to capture the essential structure of a dataset without significant information loss.
+
+There are many methods for estimation, two popular ones are
+
+* Principal Component Analysis (PCA):
+
+Analyze the variance explained by each principal component. The number of components required to retain a high fraction (e.g., 95%) of total variance indicates the intrinsic dimension.
+
+* Maximum Likelihood Estimation (MLE):
+
+Uses nearest-neighbor distances to estimate dimension based on data density.
+
+### The Q Matrix to Approximate the P Matrix by Student's t-Distribution (1 degree of Freedom)
+
+The $P$ Matrix is approximated by a Student's t-Distribution (1 degree of Freedom) $Q$.
+
+The Student's t-Distribution is defined and set degree of freedom $v=1$.
+
+$$
+\begin{align*}
+    & f_v(t) &&= \frac{\Gamma\big(\frac{v+1}{2}\big)}{\sqrt{\pi v}\space\Gamma\big(\frac{v}{2}\big)}\bigg(1+\frac{t^2}{v}\bigg)^{-(v+1)/2} \\
+    \text{set } v=1 \Rightarrow\quad & &&= \frac{1}{\sqrt{\pi}\cdot\sqrt{\pi}}\bigg(1+t^2\bigg)^{-1} \\
+    &&&= \frac{1}{\pi}\bigg(1+t^2\bigg)^{-1}
+\end{align*}
+$$
+
+where Gamma function is $\Gamma(v)=\int_0^{\infty}t^{v-1}e^{-t} dt$.
+In particular for $v\in\mathbb{Z}^{+}$, there is $\Gamma(v)=(v-1)!$ (see Proof of $\Gamma(\frac{1}{2})=\sqrt{\pi}$ in the Appetizer chapter).
+
+The t statistic is $t=\frac{Z}{\sqrt{Z^2_1/1}}=\frac{Z}{\|Z_1\|}$.
+
+The entry of $Q$ is
+
+$$
+q_{ij}=\frac{\big(1+||\bold{y}_i-\bold{y}_j||^2\big)^{-1}}{\sum_{k \ne l}\big(1+||\bold{y}_k-\bold{y}_l||^2\big)^{-1}}
+$$
+
+Recall that the t statistic in Gaussian distribution is defined as $t=\frac{\overline{X}-\mu}{s/\sqrt{n}}$, that in comparison to the $q_{ij}$, the $\overline{X}-\mu$ is analogously the gap $\bold{y}_i-\bold{y}_j$.
+
+The $\sum_{k \ne l}(...)$ is the normalization term.
+
+#### Benefits of Implementing Cauchy Distribution for $Q$
+
+The "heavy tail" property of Cauchy distribution indicates that the gap $\bold{y}_i-\bold{y}_j$ is more tolerant against outlier sample points compared to a typical Gaussian distribution.
+
+### Training and Cost Function (Kullback-Leibler Divergence)
+
+The optimal $\hat{\bold{y}}$ is trained with the objective to minimize a cost function: Kullback-Leibler divergence that the $P$ and $Q$ should be as similar as possible.
+
+$$
+\hat{\bold{y}}=\argmin_{\bold{y}} \text{KL}(P||Q) =
+\sum_{i\ne j}\log p_{ij}\frac{p_{ij}}{q_{ij}}
+$$
+
+### Perplexity Setup and Desired Probability Distribution Distance
+
+Intuitively speaking, perplexity is the num of neighbors of $x_i$ to include in t-SNE computation for desired probability distribution distance.
+The normal distribution bandwdith $\frac{1}{2\sigma^2}$ is dynamically computed to keep perplexity at constant per **manually** defined usually set between $5$ to $50$.
+
+Perplexity in its nature is defined as exponentiation of summed Shannon entropy.
+
+$$
+\text{Perplexity}(p)=2^{H(p)}=
+2^{-\sum_{x}p(x)\log_2 p(x)}
+$$
+
+For example, below results show that as the prediction uncertainty increases, perplexity value grows.
+
+||Event Scenario|Perplexity|Perplexity Inverse|
+|-|-|-|-|
+|Scenario 1|$p_{x_1}=1.0$|$1.0=2^{-1.0\log_2 1.0}$|$1.0\approx 1/1.0$|
+|Scenario 2|$p_{x_1}=0.1$, $p_{x_2}=0.9$|$1.38\approx 2^{-0.1\log_2 0.1 - 0.9\log_2 0.9}$|$0.72\approx 1/1.38$|
+|Scenario 3|$p_{x_1}=p_{x_2}=0.5$|$1.617\approx 2^{-2\times 0.5\log_2 0.5}$|$0.618\approx 1/1.617$|
+|Scenario 4|$p_{x_1}=p_{x_2}=p_{x_3}=0.333, \sum_{x_i\notin\{x_1, x_2, x_3\}}p_{x_i}=0.001$|$3.137\approx 2^{-3\times 0.333\log_2 0.333-0.001\times\log_2 0.001}$|$0.319\approx 1/3.137$|
+
+In t-SNE, it is defined ${H(p_i)}=2^{-\sum_{j}p_{j|i}\log_2 p_{j|i}}$.
+Perplexity can be interpreted as a smooth measure of the effective number of neighbors.
+For example in the scenario 4, the insignificant neighbors of $x_i$ represented by $\sum_{x_j\notin\{x_1, x_2, x_3\}}p_{x_j}=0.001$ see $0\approx{-0.001\times\log_2 0.001}$, and $\{x_1, x_2, x_3\}$ are mostly related to the three nearest neighbors indicative by $3.137$.
+
+## Appetizer: Proof of $\Gamma(\frac{1}{2})=\sqrt{\pi}$
+
+Here to prove $\Gamma(\frac{1}{2}) = \int_{-\infty}^{\infty}t^{-1/2}e^{-t}dt=\sqrt{\pi}$.
+
+### Transform to typical Gaussian integration form
+
+$$
+\begin{align*}
+    && \Gamma(\frac{1}{2}) &= \int_{-\infty}^{\infty}t^{-1/2}e^{-t}dt \\
+    \text{Substitute } t=x^2, dt=2xdx\qquad \Rightarrow && &= \int_{-\infty}^{\infty} 2(x^2)^{-1/2} e^{-x^2} xdx \\
+    && &= 2\int_{-\infty}^{\infty} x\cdot x^{-1} e^{-x^2} dx \\
+    && &= 2\int_{-\infty}^{\infty} e^{-x^2} dx
+\end{align*}
+$$
+
+Let $I=\int_{0}^{\infty} e^{-x^2} dx$, and square the integral
+
+$$
+\begin{align*}
+    I^2 &= \bigg(\int_{-\infty}^{\infty} e^{-x^2} dx\bigg)\bigg(\int_{-\infty}^{\infty} e^{-y^2} dy\bigg) \\
+    &= \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} e^{-(x^2+y^2)}dxdy
+\end{align*}
+$$
+
+### Transform to polar coordinates
+
+Let $x=r\sin\theta$ and $y=r\cos\theta$, then
+
+$$
+x^2+y^2=r^2(\sin^2\theta+\cos^2\theta)=r^2
+$$
+
+This fits the definition of the polar coordinates.
+
+* $r=\sqrt{x^2+y^2}\in[0, \infty)$
+* $\theta=\arctan^2(y,x)\in[0,2\pi]$
+
+So that
+
+$$
+\begin{align*}
+    I^2 &= \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} e^{-(x^2+y^2)} dxdy \\
+    &= \int_{0}^{2\pi}\int_{0}^{\infty} e^{-r^2} rdrd\theta
+\end{align*}
+$$
+
+### Proof of $dxdy=rdrd\theta$
+
+Intuitively speaking, for integration increment growth of the rectangular area $dxdy$, the corresponding increment growth in polar coordinates is the area of a sector by $dr \times rd\theta$.
+
+The Jacobian determinant gives the growth rate
+
+$$
+J = \begin{bmatrix}
+    \frac{\partial x}{dr} & \frac{\partial x}{d\theta} \\
+    \frac{\partial y}{dr} & \frac{\partial y}{d\theta}
+\end{bmatrix} = \begin{bmatrix}
+    \sin\theta & -r\cos\theta \\
+    \cos\theta & r\sin\theta \\
+\end{bmatrix}
+$$
+
+The determinant $\text{det}(J)$ is
+
+$$
+\begin{align*}
+    \text{det}(J) &= r\sin^2\theta+r\cos^2\theta \\
+    &= r(\sin^2+\cos^2) \\
+    &= r
+\end{align*}
+$$
+
+### Evaluate the Radial and Angular Integral
+
+There are two parts in $I^2=\int_{0}^{2\pi}\int_{0}^{\infty} e^{-r^2} rdrd\theta$:
+
+* Radial Integral $\int_{0}^{\infty} e^{-r^2} rdr$
+* Angular Integral $\int_{0}^{2\pi}d\theta$
+
+It is easy to say that
+
+$$
+\int_{0}^{2\pi}d\theta=2\pi
+$$
+
+For radial integral, let $u=r^2$, so that $du=2rdr$, then
+
+$$
+\begin{align*}
+    \int_{0}^{\infty} e^{-r^2} rdr=
+    \int_{0}^{\infty} e^{-u} \frac{1}{2}du=
+    \frac{1}{2}
+\end{align*}
+$$
+
+### Final Integration Result
+
+Given the above radial and angular integral results, there is
+
+$$
+I^2=\int_{0}^{2\pi}\int_{0}^{\infty} e^{-r^2} rdrd\theta=\frac{1}{2} \cdot 2\pi=\pi
+$$
+
+Therefore, having squared root the result, there is
+
+$$
+I=\int_{-\infty}^{\infty}t^{-1/2}e^{-t}dt=\sqrt{\pi}
+$$
+
+## Code
+
+```py
+import numpy as np
+from scipy.spatial.distance import pdist, squareform
+from sklearn.neighbors import NearestNeighbors
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.manifold import TSNE
+
+PERPLEXITY = 30
+
+
+def pairwise_squared_distances(X):
+    return squareform(pdist(X, 'sqeuclidean'))
+
+def estimate_intrinsic_dim(X, k=2):
+    from sklearn.neighbors import NearestNeighbors
+    nbrs = NearestNeighbors(n_neighbors=k+1).fit(X)
+    distances, _ = nbrs.kneighbors(X)
+    
+    # Ensure no division by zero: filter out points where denominator is zero
+    denominator = distances[:, k-1]
+    valid_mask = denominator > 0  # Mask to exclude zero denominators
+    distances_valid = distances[valid_mask, :]
+    
+    if np.sum(valid_mask) == 0:
+        raise ValueError("All denominators are zero. Check for duplicate data points.")
+    
+    # Compute distance ratios only for valid points
+    mu = distances_valid[:, k] / distances_valid[:, k-1]
+    mu = mu[~np.isnan(mu)]  # Remove NaNs (if any)
+    mu = mu[~np.isinf(mu)]  # Remove Infs (if any)
+    
+    if len(mu) == 0:
+        return 1  # Fallback to default dimension
+    
+    d = 1 / (np.log(mu).mean())
+    return max(1, int(np.round(d)))
+
+def pairwise_adjusted_distances(X, gamma=1.0):
+    D = pairwise_squared_distances(X)
+    return D ** gamma
+
+def Hbeta(D_row, beta):
+    P = np.exp(-D_row * beta)
+    sum_P = np.maximum(np.sum(P), 1e-8)
+    H = np.log(sum_P) + beta * np.sum(D_row * P) / sum_P
+    P /= sum_P
+    return H, P
+
+def find_beta(D_row, perplexity, tol=1e-5, max_iter=50):
+    desired_entropy = np.log(perplexity)
+    beta_min, beta_max = -np.inf, np.inf
+    beta = 1.0
+    for _ in range(max_iter):
+        H, P = Hbeta(D_row, beta)
+        entropy_diff = H - desired_entropy
+        if abs(entropy_diff) <= tol:
+            break
+        if entropy_diff > 0:
+            beta_min = beta
+            beta = beta * 2 if beta_max == np.inf else (beta + beta_max) / 2
+        else:
+            beta_max = beta
+            beta = beta / 2 if beta_min == -np.inf else (beta + beta_min) / 2
+    return beta, P
+
+def compute_p_matrix(X, perplexity=30.0, gamma=1.0):
+    n = X.shape[0]
+    D = pairwise_adjusted_distances(X, gamma)
+    P = np.zeros((n, n))
+    for i in range(n):
+        D_row = D[i, :]
+        mask = np.arange(n) != i
+        D_row = D_row[mask]
+        beta, row_P = find_beta(D_row, perplexity)
+        P[i, mask] = row_P
+    P = (P + P.T) / (2 * n)
+    np.fill_diagonal(P, 0)
+    P = np.maximum(P, 1e-12)
+    return P
+
+def compute_q_matrix(Y):
+    D = pairwise_squared_distances(Y)
+    Q = 1.0 / (1.0 + D)
+    np.fill_diagonal(Q, 0.0)
+    Q /= np.sum(Q)
+    return np.maximum(Q, 1e-12)
+
+def compute_gradient(P, Q, Y):
+    n = Y.shape[0]
+    grad = np.zeros_like(Y)
+    for i in range(n):
+        diff = Y[i] - Y
+        dist = 1.0 + np.sum(diff**2, axis=1)
+        inv_dist = 1.0 / dist
+        pq_diff = (P[i, :] - Q[i, :]) * inv_dist
+        grad[i] = 4.0 * (pq_diff @ diff)
+    return grad
+
+def tsne(X, perplexity=30.0, max_iter=1000, lr=100.0, momentum=0.8):
+    d = estimate_intrinsic_dim(X)  # Estimate intrinsic dimension
+    gamma = d / 2  # Power transform exponent
+    P = compute_p_matrix(X, perplexity, gamma)
+    n = X.shape[0]
+    Y = np.random.randn(n, 2) * 1e-4
+    previous_Y = Y.copy()
+    gains = np.ones_like(Y)
+    for it in range(max_iter):
+        Q = compute_q_matrix(Y)
+        kl = np.sum(np.where(P > 0, P * np.log(P / Q), 0))
+        grad = compute_gradient(P, Q, Y)
+        gains = (gains + 0.2) * ((grad > 0) != (previous_Y > 0)) + \
+                (gains * 0.8) * ((grad > 0) == (previous_Y > 0))
+        gains = np.clip(gains, 0.01, None)
+        update = lr * gains * grad
+        Y -= update
+        Y += momentum * (Y - previous_Y)
+        previous_Y = Y.copy()
+        if it % 100 == 0:
+            print(f"Iteration {it}, KL divergence: {kl:.4f}")
+    return Y
+
+# Example Usage
+iris = load_iris()
+X, y = iris.data, iris.target
+Y = tsne(X, perplexity=PERPLEXITY, max_iter=1000)
+
+# tRY with built-in TSNE
+skl_tsne = TSNE(perplexity=PERPLEXITY, n_components=2)
+Y_skl = skl_tsne.fit_transform(X)
+
+fig = plt.figure(figsize=(10, 5))
+ax = fig.add_subplot(121)
+ax.scatter(Y[:, 0], Y[:, 1], c=y, cmap=plt.cm.Spectral)
+ax.set_title('t-SNE (by custom) of Iris Dataset')
+
+ax2 = fig.add_subplot(122)
+ax2.scatter(Y_skl[:, 0], Y_skl[:, 1], c=y, cmap=plt.cm.Spectral)
+ax2.set_title('t-SNE (by sklearn) of Iris Dataset')
+
+plt.show()
+```
