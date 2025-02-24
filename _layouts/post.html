@@ -4,18 +4,20 @@
     <link rel="stylesheet" href="{{ '/assets/css/syntax.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/css/style.scss' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/css/sidebar.css' | relative_url }}">
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.4/katex.min.js"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.4/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
       renderMathInElement(document.body, {
         delimiters: [
-        { left: "$$", right: "$$", display: true },  // Block math
-        { left: "\\[", right: "\\]", display: true },  // Alternative block math (LaTeX standard)
-        { left: "$", right: "$", display: false },  // Inline math
-        { left: "\\(", right: "\\)", display: false }  // Alternative inline math (LaTeX standard)
-      ],
-        throwOnError: false  // Helps debug rendering issues
+          // Inline math delimiters first to prioritize them
+          { left: "\\(", right: "\\)", display: false },  // LaTeX inline
+          { left: "$", right: "$", display: false },       // Traditional inline
+          // Block math after inline to avoid conflicts
+          { left: "$$", right: "$$", display: true },      // Block math
+          { left: "\\[", right: "\\]", display: true }     // LaTeX block
+        ],
+        throwOnError: false
       });
     });
 </script>
