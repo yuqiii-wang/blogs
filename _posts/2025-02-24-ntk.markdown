@@ -15,6 +15,18 @@ References:
 * https://zhuanlan.zhihu.com/p/123047060
 * https://zhuanlan.zhihu.com/p/139678570
 
+
+Given a deep (with $l$ layers) and very wide (dimension is $d\rightarrow\infty$) neural network where each layer is parameterized by $\bold{\theta}_l\in\mathbb{R}^{d}$, and denote activation functions as $\sigma_l$.
+
+$$
+f_{\bold{\theta}}(\bold{x})=
+\underbrace{\sigma_{l}\big(\qquad\qquad...\qquad\qquad
+\underbrace{\sigma_{2}(W_{2}
+\underbrace{\sigma_{1}(W_{1}\bold{x}+\bold{b}_{1})}_{\text{layer }1}
++\bold{b}_{2})}_{\text{layer }2}
+\big)}_{\text{layer }l}
+$$
+
 The NTK kernel is defined as
 
 $$
@@ -139,7 +151,7 @@ Hence, for convergence the coefficient $|1-\eta\lambda_{\max}|<1 \Rightarrow \et
 
 * Catapult Phase: $\frac{2}{\lambda_{\max}}<\eta<\frac{4}{\lambda_{\max}}$
 
-For $$\|1-\eta\lambda_{\max}\|>1$$ , the dynamics $f_{t}=f_0(1-\eta\lambda_{\max})^t$ experiences oscillatory divergence (output magnitude grows exponentially).
+For $$\|1-\eta\lambda_{\max}\|>1$$ , the dynamics $f_{t}=f_0(1-\eta\lambda_{\max})^t$ experiences oscillatory convergence (output magnitude grows exponentially).
 
 As an example, let $\eta=\frac{3}{\lambda_t}$, the NTK kernel is monotonically decreasing $\lambda_{t+1}=\lambda_t+\frac{9f_t^2}{d\lambda_t^2}(3-4)=\lambda_t-\frac{9f_t^2}{d\lambda_t^2}$.
 Although $f_{t}=f_0(1-\eta\lambda_{\max})^t$ grows exponentially, the growth rate (determined by NTK kernel $\lambda_{t}\rightarrow\lambda_{t+1}$) dampens over time.

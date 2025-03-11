@@ -32,6 +32,10 @@ kramdown:
   math_engine: mathjax
   syntax_highlighter: rouge
 
+include:
+  - assets/audio
+
+
 highlighter: rouge
 # Exclude from processing.
 # The following items will not be processed, by default.
