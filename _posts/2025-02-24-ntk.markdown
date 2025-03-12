@@ -343,7 +343,7 @@ E\big(W^{(l)}_{ij}W^{(l)}_{ik}\big) = \frac{\sigma_w^2}{d_{l-1}}\delta_{jk}, \qu
 \sigma_w^2 = \mathcal{O}(1)
 $$
 
-where $\delta_{jk}\sim\mathcal{O}(1)$ is the Kronecker delta $\delta_{jk}=\begin{cases}1 & j=k \\ 0 & j\neq k\end{cases}$,
+where $\delta_{jk}\sim\mathcal{O}(1)$ is the Kronecker delta $$\delta_{jk}=\begin{cases}1 & j=k \\ 0 & j\neq k\end{cases}$$,
 that specifies each element of the weight matrix multiplcation has the $\mathcal{O}(\frac{1}{d_{l-1}})$ variance.
 
 Proof: the sum of $d$ random variables with individual variance $\sigma_i^2$ has a variance of $\sum_{i=1}^d\sigma_i^2$.
