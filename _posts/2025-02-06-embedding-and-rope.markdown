@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "embedding and rope"
-date:   2025-03-12 01:58:10 +0800
+date:   2025-02-06 01:58:10 +0800
 categories: embedding
 ---
 
