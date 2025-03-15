@@ -69,7 +69,7 @@ $$
 
 where $\bold{i}=\{ 1,2,...,D \} \in \mathbb{Z}^{+}$ is a vector of dimension indices, then define $\bold{\theta}_i=10000^{-\frac{2i}{\bold{D}}}$.
 
-### Intuition: Semantics Indicated By Dimensionality Encapsulated Token Distance Info
+### Intuition of Embedding Design Philosophy: Semantics Indicated By Dimensionality Encapsulated Token Distance Info
 
 For a query token $\bold{q}_m\in\mathbb{R}^{1\times D}$ positioned at $m$ and a key token $\bold{k}_n\in\mathbb{R}^{1\times D}$ at $n$, and assume their respective dimensions correlate to the two token distance $|n-m|$ (corresponding frequency denoted as $\frac{1}{|n-m|}$, also distance is termed *wavelength*),
 by learning their embeddings encapsulates latent relationship.
@@ -89,6 +89,10 @@ Pets are considered global features, and cats and dogs are local.
 Pets have long been cherished companions, bringing joy, comfort, and a sense of purpose into their owners' lives.
 
 ... (Some introduction and background)
+
+Cats were domesticated around 9,000 years ago, likely drawn to human settlements for food, and were later adopted as pets for their hunting skills and companionship.
+
+Dogs, domesticated over 15,000 years ago from wolves, were gradually adopted as pets due to their loyalty, ability to assist in hunting, and role as protectors of human communities.
 
 Cats are admired for their independent yet affectionate nature. They bring a soothing presence into a home, often offering quiet moments of comfort and playful antics that lighten the mood.
 
@@ -249,12 +253,6 @@ $$
 
 where $\odot$ is element-wise multiplication operator.
 
-For a query token $$\bold{q}_{1}$$ (set $$m=1$$ as base position reference index since only relative positional gap is concerned here), plot score $$\text{score}(\bold{q}_1, \bold{k}_n)$$ for key tokens at growing distances $$\bold{k}_{n}$$ for $n=1,2,...,512$ and $n=1,2,...,65535$.
-These two plots show the scores as a key $$\bold{k}_n$$'s positional distance ($$\text{dist}=|n-m|$$) to $$\bold{q}_{1}$$ grows.
-
-For easy comparison, both query and key token are set to $\bold{1}$ such that $$\bold{q}_m=\{ \underbrace{1,1,1, ..., 1 }_{D=256} \}$$ and $$\bold{k}_n=\{ \underbrace{1,1,1, ..., 1 }_{D=256} \}$$,
-so that the scores' differences only reflect the rotational positional distance ($$\bold{q}_1^{\top} R_{1-m} \bold{k}_n$$).
-
 The attention score is computed by $$\text{score}(\bold{q}_m, \bold{k}_n)=\text{score}(\bold{q}_m, \bold{k}_n)=\sum^{D/2}_{i=1} \bold{q}_{1_{i}}^{\top} R_{(1-m)_{i}} \bold{k}_{1_{i}}$$.
 
 The individual dimensions' scores for $i=1$ vs $j$ are shown as below.
@@ -264,137 +262,132 @@ The individual dimensions' scores for $i=1$ vs $j$ are shown as below.
 
 By this design, each position embedding dimension learns about info regarding different $\|n-m\|$.
 
-<div style="display: flex; justify-content: center;">
-      <img src="{{ site.baseurl }}/assets/imgs/rope_query0_keyj_individuald.png" width="80%" height="20%" alt="rope_query0_keyj_individuald" />
-</div>
-</br>
-
 For summed score over all dimensions $$\text{score}(\bold{q}_m, \bold{k}_n)=\sum^{D/2}_{i=1} \bold{q}_{1_{i}}^{\top} R_{(1-m)_{i}} \bold{k}_{1_{i}}$$,
 
 * when they are close (small values of $\|n-m\|$), score is high;
 * when they are far away (large values of $\|n-m\|$), score is low.
-
-Figure 1 is the zoomed-in version of figure 2 for $n=1,2,...,512$.
-
-<div style="display: flex; justify-content: center;">
-      <img src="{{ site.baseurl }}/assets/imgs/rope_query0_keyj.png" width="50%" height="25%" alt="rope_query0_keyj" />
-</div>
-</br>
 
 ### RoPE Example and Frequency Study
 
 * Let $D=16$ and $D/2=8$.
 * Frequency base $10,000$
 * Rotation angle for for dim $d$: $\theta_d = 10000^{-\frac{2d}{D}}$
-* Assume (as an example) a query vector $\bold{q}_m$ sees a key vector $\bold{k}_n$ at $n=m+3$ (relative position distance is $3$)
+
+For easy comparison, both query and key token are set to $$\bold{1}$$ such that $$\bold{q}_m=\{ \underbrace{1,1,1, ..., 1 }_{D=256} \}$$
+and $$\bold{k}_n=\{ \underbrace{1,1,1, ..., 1 }_{D=256} \}$$, so that the scores' differences only reflect the rotational positional distance ($$\bold{q}_1^{\top} R_{1-m} \bold{k}_n$$).
+
+<div style="display: flex; justify-content: center;">
+      <img src="{{ site.baseurl }}/assets/imgs/rope_query0_keyj.png" width="80%" height="50%" alt="rope_query0_keyj" />
+</div>
+</br>
 
 Compute the angles and their cosine and sine values:
 
 $$
 \begin{align*}
-    \theta_0 &= 10000^{-\frac{2 \times 0}{16}} = 10000^0 = 1 &\qquad
-    \cos(\theta_0) &\approx 0.5403 & \sin(\theta_0) &= 0.8418 \\
-    \theta_1 &= 10000^{-\frac{2 \times 1}{16}} = 10000^{-\frac{1}{8}} \approx 0.3162 &\qquad
-    \cos(\theta_1) &\approx 0.9504 & \sin(\theta_1) &\approx 0.3110 \\
-    \theta_2 &= 10000^{-\frac{2 \times 2}{16}} = 10000^{-\frac{1}{4}} = 0.1 &\qquad
-    \cos(\theta_2) &\approx 0.9950 & \sin(\theta_2) &\approx 0.0998 \\
-    \theta_3 &= 10000^{-\frac{2 \times 3}{16}} = 10000^{-\frac{3}{8}} \approx 0.03162 &\qquad
-    \cos(\theta_3) &\approx 0.9996 & \sin(\theta_3) &\approx 0.0316 \\
-    \theta_4 &= 10000^{-\frac{2 \times 4}{16}} = 10000^{-\frac{1}{2}} = 0.01 &\qquad
-    \cos(\theta_4) &\approx 0.99995 & \sin(\theta_4) &\approx 0.0099998 \\
-    \theta_5 &= 10000^{-\frac{2 \times 5}{16}} = 10000^{-\frac{5}{8}} \approx 0.003162 &\qquad
-    \cos(\theta_5) &\approx 1 & \sin(\theta_5) &\approx 0 \\
-    \theta_6 &= 10000^{-\frac{2 \times 6}{16}} = 10000^{-\frac{3}{4}} = 0.001 &\qquad
-    \cos(\theta_6) &\approx 1 & \sin(\theta_6) &\approx 0 \\
-    \theta_7 &= 10000^{-\frac{2 \times 7}{16}} = 10000^{-\frac{7}{8}} \approx 0.000316 &\qquad
-    \cos(\theta_7) &\approx 1 & \sin(\theta_7) &\approx 0 \\
-\end{align*}
+    \theta_0 &= 10000^{-\frac{2 \times 0}{256}} = 1 \qquad&&
+    \cos(\theta_0) \approx 0.5403 && \sin(\theta_0) \approx 0.8418 \\
+    \theta_1 &= 10000^{-\frac{2 \times 1}{256}}\approx 0.9306 \qquad&&
+    \cos(\theta_1) \approx 0.5973 && \sin(\theta_1) \approx 0.8020 \\
+    \theta_2 &= 10000^{-\frac{2 \times 2}{256}} \approx 0.8660 \qquad&&
+    \cos(\theta_2) \approx 0.6479 && \sin(\theta_2) \approx 0.7617 \\
+    \theta_3 &= 10000^{-\frac{2 \times 3}{256}} \approx 0.8058 \qquad&&
+    \cos(\theta_3) \approx 0.6925 && \sin(\theta_3) \approx 0.7214 \\
+    ... \\
+    \theta_{126} &= 10000^{-\frac{2 \times 126}{256}} \approx 1.15 \times 10^{-4} \qquad&&
+    \cos(\theta_{126}) \approx 1 && \sin(\theta_{126}) \approx 0 \\
+    \theta_{127} &= 10000^{-\frac{2 \times 127}{256}} \approx 1.07 \times 10^{-4} \qquad&&
+    \cos(\theta_{127}) \approx 1 && \sin(\theta_{127}) \approx 0 \\\end{align*}
 $$
 
-For $\bold{v} \in \mathbb{R}^{16}$, group by pairing
+For $\bold{v} \in \mathbb{R}^{256}$, group by pairing
 
 $$
-\text{Groups}=(v_1, v_2), (v_3, v_4), ..., (v_{15}, v_{16})
+\text{Groups}=(v_1, v_2), (v_3, v_4), ..., (v_{255}, v_{256})
 $$
 
 Compute the distance at the position $m$ for each group by rotation
 
 $$
 \begin{bmatrix}
-    v_{2i} \cos(m \theta_i) - v_{2i+1} \sin(m \theta_i) \\
-    v_{2i} \sin(m \theta_i) + v_{2i+1} \cos(m \theta_i)
+    v_{2i} \cos(|n-m| \theta_i) - v_{2i+1} \sin(|n-m| \theta_i) \\
+    v_{2i} \sin(|n-m| \theta_i) + v_{2i+1} \cos(|n-m| \theta_i)
 \end{bmatrix}
 $$
 
-Given the assumption that query vector $\bold{q}_m$ sees key vector $\bold{k}_n$
-at $n=m+3$ (relative position distance is $3$), compute the score by rotation (replace $\bold{v}$ with $\bold{q}_m$ and $\bold{k}_n$).
+Given the assumption (as an example) that query vector $\bold{q}_m$ sees key vector $\bold{k}_n$
+at $n=m+\Delta$ (relative position distance is $\Delta$), compute the score by rotation (replace $\bold{v}$ with $\bold{q}_m$ and $\bold{k}_n$).
 
 $$
 \begin{align*}
-\langle \bold{q}_m, \bold{k}_n \rangle = \sum_{i=0}^7 \Big(
-    & \underbrace{\big(q_{2i}^m k_{2i}^{m+3} + q_{2i+1}^m k_{2i+1}^{m+3}\big)}_{\alpha_{\cos}} \cos(3\theta_i) + \\
-    & \underbrace{\big(q_{2i+1}^m k_{2i}^{m+3} - q_{2i}^m k_{2i+1}^{m+3}\big)}_{\alpha_{\sin}} \sin(3\theta_i) \Big)
+\langle \bold{q}_m, \bold{k}_n \rangle = \sum_{i=0}^{127} \Big(
+    & \underbrace{\big(q_{2i}^m k_{2i}^{m+\Delta} + q_{2i+1}^m k_{2i+1}^{m+\Delta}\big)}_{\alpha_{\cos}} \cos(\Delta\theta_i) + \\
+    & \underbrace{\big(q_{2i+1}^m k_{2i}^{m+\Delta} - q_{2i}^m k_{2i+1}^{m+\Delta}\big)}_{\alpha_{\sin}} \sin(\Delta\theta_i) \Big)
 \end{align*}
 $$
 
-The above formula shows that for relative position distance $3$,
-it is cosine and sine of $3\theta_i$ that contribute to the score.
+The above formula shows that for relative position distance $\Delta$,
+it is cosine and sine of $\Delta\theta_i$ that contribute to the score.
 
 #### RoPE Frequency Study
 
 Generally speaking, low frequency groups see higher variations as positional distance grows,
 while high frequency groups see lower variations.
 
-##### High Frequency Groups
+* High Frequency
 
-For large $\theta_i$, $\cos(3\theta_i)$ and $\sin(3\theta_i)$ see large change from $\cos(1\theta_i)$ and $\sin(1\theta_i)$ respectively.
+Large $\theta_i$ leads to significant oscillation of $\langle \bold{q}_m, \bold{k}_n \rangle$
+given distance changes $|n-m| \theta_i$.
 
-$$
-\begin{align*}
-\cos(1\theta_0) &\approx 0.5403 & \sin(1\theta_0)       &\approx 0.8418 &\qquad\Rightarrow\qquad
-\cos(3\theta_0) &\approx -0.9900 & \sin(3\theta_0) &\approx 0.1411 \\
-\cos(1\theta_1) &\approx 0.3162 & \sin(1\theta_1)  &\approx 0.9594 &\qquad\Rightarrow\qquad
-\cos(3\theta_1) &\approx -0.5828 & \sin(3\theta_1) &\approx 0.8126 \\
-\end{align*}
-$$
+* Low Frequency
 
-##### Low Frequency Groups
-
-For small $\theta_i$, $\cos(3\theta_i)$ and $\sin(3\theta_i)$ see small change from $\cos(1\theta_i)$ and $\sin(1\theta_i)$ respectively.
-
-$$
-\begin{align*}
-\cos(1\theta_6) &\approx 1 & \sin(1\theta_6)  &\approx 0 &\qquad\Rightarrow\qquad
-\cos(3\theta_6) &\approx 1 & \sin(3\theta_6) &\approx 0 \\
-\cos(1\theta_7) &\approx 1 & \sin(1\theta_7)  &\approx 0 &\qquad\Rightarrow\qquad
-\cos(3\theta_7) &\approx 1 & \sin(3\theta_7) &\approx 0 \\
-\end{align*}
-$$
-
-#### RoPE Long Distance Study
-
-Let $\lambda_i=\frac{2\pi}{\theta_i}=2\pi \cdot 10000^{2i/16}$ be wavelength.
-
-|$\theta_i$|Full wavelength $\lambda_i$|
-|-|-|
-|$\theta_0$=1|6.2832|
-|$\theta_1$=0.3162|19.9477|
-|$\theta_2$=0.1|62.832|
-|$\theta_3$=0.03162|199.477|
-|$\theta_4$=0.01|628.32|
-|$\theta_5$=0.003162|1994.77|
-|$\theta_6$=0.001|6283.2|
-|$\theta_7$=0.0003162|19947.7|
-
-The max wavelength is $\lambda_7=19947.7$, which is also the max theoretical context length.
+Small $\theta_i$ leads to insensitivity to distance changes
+$|n-m| \theta_i$
+hence $\langle \bold{q}_m, \bold{k}_n \rangle$ oscillation is small.
 
 ##### Frequency Study In Long Distance
 
-When two tokens are very distant $\|n-m\|=\Delta\rightarrow \infty$, the score $\langle \bold{q}_m, \bold{k}_n \rangle$ has multiple mappings (for $R(\theta)$ is a periodic function) hence the attention score cannot determine which query token be associated to which key token.
-
-In other words, need to prove uniqueness of mapping of a full wavelength given a rotation matrix, so that each granular increment of angle step can represent a unit of token distance.
+When two tokens are very distant $|n-m|=\Delta\rightarrow \infty$,
+the score $\langle \bold{q}_m, \bold{k}_n \rangle$ has multiple mappings (for $R(\theta)$ is a periodic function) hence the attention score cannot determine which query token be associated to which key token.
 
 Since the highest dimension sees the most granular angular rotation steps, the highest dimension covered token distance is considered the longest context length.
+
+##### Theoretical Max RoPE Token Distance
+
+* The FULL wavelength of the highest dimension (the lowest frequency) $\lambda_{\text{longest}}=\frac{2\pi}{\theta_{\text{smallest}}}$
+
+This guarantees unique one-to-one mapping of token distance.
+
+For example, $\lambda_{127}=\frac{2\pi}{\theta_{127}}\approx 58.47\text{k}$
+
+* The HALF wavelength of the highest dimension (the lowest frequency) $\frac{1}{2}\lambda_{\text{longest}}=\frac{\pi}{\theta_{\text{smallest}}}$
+
+By the embedding design philosophy aiming to scale down long distance token attention score, since the half wavelength, the dominant cosine term sees monotonic increase in $[\pi, 2\pi)$ contradicting to this design.
+
+For example, $\frac{1}{2}\lambda_{127}=\frac{\pi}{\theta_{127}}\approx 29.24\text{k}$
+
+##### Effective RoPE Token Distance Range
+
+See in $\langle \bold{q}_m, \bold{k}_n \rangle$ as token distance
+$|n-m|$ grows from closely adjacent to faraway,
+
+$$
+\langle \bold{q}_m, \bold{k}_n \rangle=\sum_{i=0}^{127} \big(\alpha_{\cos}\cos(|n-m|\theta_i)+\alpha_{\sin}\sin(|n-m|\theta_i) \big)
+$$
+
+when tokens are positioned closely the inner product $\langle \bold{q}_m, \bold{k}_n \rangle$
+is dominated by cosine $\cos(|n-m|\theta_i)\approx 1$,
+while sine is trivial $\sin(|n-m|\theta_i)\approx 0$.
+
+As a result, in the beginning the inner product $\langle \bold{q}_m, \bold{k}_n \rangle$ sees monotonic decrease.
+
+As token distance $|n-m|$ grows to longer,
+e.g., to the $10\%$ of full wavelength $\frac{1}{10}\lambda_{\text{longest}}$, most of dimensions see multiple periods of oscillations over full wavelengths.
+
+For example, out of $D=128$ dimensions, $75\%$ of dimensions have gone through full wavelengths given $\lambda_{95}=\frac{1}{10}\lambda_{127}\approx 5.84\text{k}$.
+
+Together more and more frequencies cancel out each other as token distance $|n-m|$ grows and this results in oscillation convergence around $0$,
+and since the start of non-decrease oscillation happens, the attention score by $\bold{q}_m^{\top}\bold{k}_n$ no longer holds discriminative semantics.
 
 ##### Proof of Unique Rotary Mapping within $\lambda_d=\frac{2\pi}{\theta_i}$
 
