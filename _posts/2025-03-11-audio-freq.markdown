@@ -9,7 +9,7 @@ Original "Hello World":
 
 <div style="display: flex; justify-content: left;">
 <audio controls>
-    <source src="{{ site.baseurl }}/assets/audio/hello_world.wav" type="audio/wav">
+    <source src="{{ site.baseurl }}/assets/audio/hello_world.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
 </audio>
 </div>
@@ -18,7 +18,7 @@ Badly stretched "Hello World":
 
 <div style="display: flex; justify-content: left;">
 <audio controls>
-    <source src="{{ site.baseurl }}/assets/audio/hello_world_bad_stretch.wav"  type="audio/wav">
+    <source src="{{ site.baseurl }}/assets/audio/hello_world_bad_stretch.mp3"  type="audio/mpeg">
     Your browser does not support the audio element.
 </audio>
 </div>
@@ -27,7 +27,7 @@ Well stretched "Hello World":
 
 <div style="display: flex; justify-content: left;">
 <audio controls>
-    <source src="{{ site.baseurl }}/assets/audio/hello_world_good_stretch.wav" type="audio/wav">
+    <source src="{{ site.baseurl }}/assets/audio/hello_world_good_stretch.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
 </audio>
 </div>
