@@ -1,22 +1,68 @@
 <!DOCTYPE html>
-<html>
-    <title>{{ page.title }}</title>
-    <link rel="stylesheet" href="{{ '/assets/css/sidebar.css' | relative_url }}">
+<html lang="en">
 <head>
-    <title>{{ site.title }}</title>
+  <meta charset="UTF-8">
+  <title>{{ page.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/sidebar.css' | relative_url }}">
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // bind toggle to every category link that has data-expand
+      document.querySelectorAll('a[data-expand]').forEach(a => {
+        a.addEventListener('click', function (e) {
+          // if JS is available, prevent full page reload
+          e.preventDefault();
+          const li = this.closest('li');
+          const sub = li.querySelector('.subtopics');
+          const arrow = this.querySelector('.expand-btn');
+
+          if (sub.style.display === "block") {
+            sub.style.display = "none";
+            arrow.textContent = "▶";
+          } else {
+            sub.style.display = "block";
+            arrow.textContent = "▼";
+          }
+        });
+      });
+    });
+  </script>
 </head>
 <body>
-    <div class="sidebar">
-        <h3>Articles</h3>
-        <ul>
-            {% for post in site.posts %}
-            <li>
+  <div class="sidebar">
+    <h3>Articles</h3>
+    <ul>
+      {% for category in site.categories %}
+        {% assign cat_name = category[0] %}
+        {% assign cat_url  = site.baseurl | append: '/' | append: cat_name | append: '/' %}
+        {% comment %}
+          "expanded" if we’re on that category page or any sub‑page of it
+        {% endcomment %}
+        {% assign is_open = false %}
+        {% if page.url == cat_url or page.url contains cat_url %}
+          {% assign is_open = true %}
+        {% endif %}
+
+        <li class="{% if is_open %}open{% endif %}">
+          <a href="{{ cat_url }}" data-expand>
+            <span class="expand-btn">{% if is_open %}▼{% else %}▶{% endif %}</span>
+            {{ cat_name }}
+          </a>
+
+          <ul class="subtopics" style="display: {% if is_open %}block{% else %}none{% endif %};">
+            {% for post in category[1] %}
+              <li>
                 <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
-            </li>
+              </li>
             {% endfor %}
-        </ul>
-    </div>
-    <div class="main-content">
-    </div>
+          </ul>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="main-content">
+    <!-- Your page's main content -->
+  </div>
 </body>
 </html>

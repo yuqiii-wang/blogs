@@ -32,7 +32,7 @@ Well stretched "Hello World":
 </audio>
 </div>
 
-It can be heard that the badly stretched sound wave is of deep lower voice while the well stretched one preserves the original female voice.
+It is easy to observe that the badly stretched sound wave is of deep lower voice while the well stretched one preserves the original female voice.
 
 This is attributed to the well stretched sound wave preserves the frequency domain while the badly stretched one simply does interpolation evenly on all sample points.
 

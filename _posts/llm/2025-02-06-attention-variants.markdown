@@ -2,7 +2,7 @@
 layout: post
 title:  "attention-variants"
 date:   2025-02-06 23:57:10 +0800
-categories: attention
+categories: llm
 ---
 This article explains three popular attention variants:
 
