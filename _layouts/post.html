@@ -17,8 +17,9 @@
           { left: "$$", right: "$$", display: true },      // Block math
           { left: "\\[", right: "\\]", display: true }     // LaTeX block
         ],
-        throwOnError: false
-      });
+        throwOnError: true,
+        ignoredTags: [],            // don't ignore anything
+    });
     });
     document.addEventListener("DOMContentLoaded", function () {
         // bind toggle to every category link that has data-expand
@@ -46,36 +47,36 @@
 </head>
 <body>
     <div class="sidebar">
-        <h3>Articles</h3>
-        <ul>
-          {% for category in site.categories %}
-            {% assign cat_name = category[0] %}
-            {% assign cat_url  = site.baseurl | append: '/' | append: cat_name | append: '/' %}
-            {% comment %}
-              "expanded" if we’re on that category page or any sub‑page of it
-            {% endcomment %}
-            {% assign is_open = false %}
-            {% if page.url == cat_url or page.url contains cat_url %}
-              {% assign is_open = true %}
-            {% endif %}
-    
-            <li class="{% if is_open %}open{% endif %}">
-              <a href="{{ cat_url }}" data-expand>
-                <span class="expand-btn">{% if is_open %}▼{% else %}▶{% endif %}</span>
-                {{ cat_name }}
-              </a>
-    
-              <ul class="subtopics" style="display: {% if is_open %}block{% else %}none{% endif %};">
-                {% for post in category[1] %}
-                  <li>
-                    <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
-                  </li>
-                {% endfor %}
-              </ul>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
+    <h3>Articles</h3>
+    <ul>
+      {% for category in site.categories %}
+        {% assign cat_name = category[0] %}
+        {% assign cat_url  = site.baseurl | append: '/' | append: cat_name | append: '/' %}
+        {% comment %}
+          "expanded" if we're on that category page or any sub‑page of it
+        {% endcomment %}
+        {% assign is_open = false %}
+        {% if page.url == cat_url or page.url contains cat_url %}
+          {% assign is_open = true %}
+        {% endif %}
+
+        <li class="{% if is_open %}open{% endif %}">
+          <a href="{{ cat_url }}" data-expand>
+            <span class="expand-btn">{% if is_open %}▼{% else %}▶{% endif %}</span>
+            {{ cat_name }}
+          </a>
+
+          <ul class="subtopics" style="display: {% if is_open %}block{% else %}none{% endif %};">
+            {% for post in category[1] %}
+              <li>
+                <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
     <div class="main-content">
         <h1>{{ page.title }}</h1>
         <p><em>{{ page.date | date: "%B %d, %Y" }}</em></p>

@@ -13,8 +13,8 @@ In other words, for high-dimensional input $\bold{x}\in\mathbb{R}^{d}$ (usually 
 
 ### The P Matrix by Exponentiated Vector Distance
 
-The similarity of datapoint $$\bold{x}_{j}$$ to datapoint $$\bold{x}_{i}$$ is the conditional probability $$\bold{x}_{j|i}$$ that
-$$\bold{x}_{i}$$ would pick $$\bold{x}_{j}$$ as its neighbor if neighbors were picked in proportion to their probability density under a Gaussian centered at $$\bold{x}_{i}$$.
+The similarity of datapoint $\bold{x}\_{j}$ to datapoint $\bold{x}\_{i}$ is the conditional probability $\bold{x}\_{j|i}$ that
+$\bold{x}\_{i}$ would pick $\bold{x}\_{j}$ as its neighbor if neighbors were picked in proportion to their probability density under a Gaussian centered at $\bold{x}\_{i}$.
 
 This can be expressed (for $i\ne j$)
 
