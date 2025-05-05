@@ -11,6 +11,7 @@
       renderMathInElement(document.body, {
         delimiters: [
           // Inline math delimiters first to prioritize them
+          { left: "\\$", right: "\\$", display: false },       // Traditional inline
           { left: "\\(", right: "\\)", display: false },  // LaTeX inline
           { left: "$", right: "$", display: false },       // Traditional inline
           // Block math after inline to avoid conflicts
