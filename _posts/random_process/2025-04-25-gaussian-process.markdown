@@ -67,14 +67,15 @@ The above expression can be noted as $\bold{x}\sim\mathcal{N}(\bold{\mu}, \Sigma
 
 ### Gaussian Process Definition
 
-Define sampling $f(\bold{x})$, that one sample is measured in $n$ dimensions $\bold{x}_i=[x_{i1}, x_{i2}, ..., x_{in}]^{\top}$, and this once sampling result is $f(\bold{x}_i)=[f(x_{i1}), f(x_{i2}), ..., f(x_{in})]^{\top}$.
+Define sampling $f(\bold{x})$, that one sample is measured in $n$ dimensions $\bold{x}\_i=\left[x_{i1}, x_{i2}, ..., x_{in}\right]^{\top}$,
+and this once sampling result is $f(\bold{x}\_i)=[f(x_{i1}), f(x_{i2}), ..., f(x_{in})]^{\top}$.
 There are multiple $n$-dimensional samples $\bold{x}_1, \bold{x}_2, ..., \bold{x}_m$, and the sequence of sampling results are $f(\bold{x}_1), f(\bold{x}_2), ..., f(\bold{x}_m)$.
 
 This process $f(\bold{x}_1), f(\bold{x}_2), ..., f(\bold{x}_m)$ is termed Gaussian process.
 
 ### RBF Kernel Function
 
-Kernel function determines how Gaussian process is defined, and it 
+Kernel function determines how Gaussian process is defined, and it
 RBF (Radial Basis Function) kernel function is a popular kernel function used a covariance matrix to measure the similarity between two samples., and it is defined as
 
 $$
@@ -92,7 +93,7 @@ Below are some examples of different kernel functions.
 
 ## Gaussian Process Example and Visualization
 
-Assume prior $f(\bold{x})\sim\mathcal{N}(\bold{\mu}_f, \Sigma_{ff})$ follows the Gaussian process, and there are some observation $(\bold{x}^*, \bold{y}^*)$ that are considered following the Gaussian process as well, i.e.,
+Assume prior $f(\bold{x})\sim\mathcal{N}(\bold{\mu}\_f, \Sigma_{ff})$ follows the Gaussian process, and there are some observation $(\bold{x}^\*, \bold{y}^\*)$ that are considered following the Gaussian process as well, i.e.,
 
 $$
 \begin{bmatrix}
@@ -112,7 +113,7 @@ $$
 f\sim\mathcal{N}(\Sigma^{\top}_{fy}\Sigma_{ff}^{-1}\bold{y}+\bold{\mu}_f, \Sigma_{ff}-\Sigma^{\top}_{fy}\Sigma_{y}^{-1}\Sigma_{fy})
 $$
 
-where $\Sigma_{ff}=\kappa(\bold{x}, \bold{x})$, $\Sigma_{fy}=\kappa(\bold{x}, \bold{x}^*)$, $\Sigma_{yy}=\kappa(\bold{x}^*, \bold{x}^*)$.
+where $\Sigma_{ff}=\kappa(\bold{x}, \bold{x})$, $\Sigma_{fy}=\kappa(\bold{x}, \bold{x}^\*)$, $\Sigma_{yy}=\kappa(\bold{x}^\*, \bold{x}^\*)$.
 Here uses RBF as kernel function $\kappa(\bold{x}, \bold{x}')$.
 
 In the figure below, the Gaussian process starts from the prior distribution with $\mu_f=\bold{0}$ and $\Sigma_{ff}=\sigma_f^2I$.
@@ -148,7 +149,7 @@ $$
 \end{align*}
 $$
 
-where $\Sigma_{yy}=\kappa(\bold{x}^*, \bold{x}^*)$.
+where $\Sigma_{yy}=\kappa(\bold{x}^\*, \bold{x}^\*)$.
 
 The optimization result is shown below, where $l=1.15$ and $\sigma_f=0.76$.
 The optimization result has a smoothing effect as exemplified in the shaded area.

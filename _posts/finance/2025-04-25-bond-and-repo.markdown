@@ -5,7 +5,6 @@ date:   2025-04-25 01:57:10 +0800
 categories: finance
 ---
 
-
 ## Bond Issuance
 
 When a company needs financing (500 mil), it issues bond by credit.
@@ -88,7 +87,7 @@ $$
 F_{pool} = \frac{\text{OutstandingPrincipleBalance}}{\text{OriginalPrincipleBalance}}
 $$
 
-E.g., $F_{pool}=0.4$ for \$1,000,000 loan means the underlying mortgage loan that remains in a mortgage-backed security transaction is \$400,000, and \$600,000 has been repaid.
+E.g., $F_{pool}=0.4$ for \\$1,000,000 loan means the underlying mortgage loan that remains in a mortgage-backed security transaction is \\$400,000, and \\$600,000 has been repaid.
 
 ## Day Count Factor: Day count Conventions
 
