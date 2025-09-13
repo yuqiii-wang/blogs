@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# Jekyll
+_site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+
+# Ruby
+.bundle
+vendor
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+
+# Docker
+Dockerfile
+docker-*.sh
+
+# Other
+README.md
+*.md
