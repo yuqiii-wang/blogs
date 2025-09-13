@@ -1,11 +1,9 @@
 ---
 layout: post
 title:  "Diffusion Model"
-date:   2025-09-13 23:57:10 +0800
-categories: computer vision
+date:   2025-09-12 23:57:10 +0800
+categories: computer-vision
 ---
-# Diffusion Model
-
 Image data is added Gaussian noises multiple $T$ times (usually $T=500, 1000, 1500, 2000$) and eventually becomes absolute Gaussian noise.
 Diffusion model learns this behavior reversely so that the model knows how pixel should get updated by what patterns between two chronologically related image frames.
 

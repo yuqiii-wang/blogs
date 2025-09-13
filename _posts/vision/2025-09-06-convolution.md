@@ -2,7 +2,7 @@
 layout: post
 title:  "convolution"
 date:   2025-09-06 23:57:10 +0800
-categories: computer vision
+categories: computer-vision
 ---
 ## Convolutional Layer
 
