@@ -14,12 +14,13 @@ Same as below, works like a static function without instantiating an object
 
 ```kotlin
 class ToBeCalled {
-    fun callMe() = println("You are calling me :)")
+    companion object {
+        fun callMe() = println("You are calling me :)")
+    }
 }
-fun main(args: Array<String>) {     
-    val obj = ToBeCalled()
-    
-    // calling callMe() method using object obj
-    obj.callMe()
+
+fun main(args: Array<String>) {
+    // Calling callMe() directly on the class, like a static method
+    ToBeCalled.callMe() 
 }
 ```

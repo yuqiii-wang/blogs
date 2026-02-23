@@ -21,6 +21,26 @@
 * For distributed systems and microservices, especially in cloud environments
 * Characterized by service discovery, circuit breakers, intelligent routing, distributed sessions, etc.
 
+### Spring Version 3.x.x vs 2.x.x
+
+|Feature/Component|Spring Boot 2.x|Spring Boot 3.x|
+|:---|:---|:---|
+|Java Baseline|Java 8 (supports up to Java 19)|Java 17 (supports Java 21+)|
+|Spring Framework|Spring Framework 5.x|Spring Framework 6.x|
+|Enterprise Java|Java EE / J2EE (`javax.*`)|Jakarta EE 10 (`jakarta.*`)|
+
+where
+
+* The Java 17
+
+Spring Boot 3 requires **Java 17** as a **minimum**.
+Under the hood, it relies on Spring Framework 6, which removes a lot of legacy code and deprecated APIs.
+
+* `javax` vs. `jakarta`
+
+`java` was originally owned by oracle, but in 2017, Oracle decided to step away from enterprise Java and donated the Java EE project to the Eclipse Foundation, then there was a massive legal and trademark shift in the Java ecosystem.
+The Eclipse Foundation renamed "Java EE" to "Jakarta EE" and changed the package namespace for all future development to `jakarta.*`.
+
 ## Spring Servlet and HTTP Handling
 
 In Spring, the handling of HTTP requests, e.g., by multiple `@Controller` and `@FeignClient` components, the underlying management of these requests is handled by the embedded servlet container (e.g., *Tomcat*, *Jetty*).

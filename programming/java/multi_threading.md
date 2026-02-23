@@ -484,7 +484,7 @@ Virtual Thread Implementation in terms of ReentrantLock vs Synchronized:
 Java 21 (released in September 2023) introduced Virtual Threads (Project Loom) as a standard feature.
 A Virtual Thread is a lightweight implementation of a thread provided by the Java Runtime (JVM) rather than the Operating System (OS).
 
-* Platform Thread (Old): Tied 1-to-1 with an OS thread. Heavy, expensive to create, and managed by the OS kernel (Every time a user creates a new Thread(), the JVM asks the OS to create a corresponding kernel thread.).
+* Platform Thread (Old): Tied 1-to-1 with an OS thread. Heavy, expensive to create, and managed by the OS kernel (Every time a user creates a new `Thread()`, the JVM asks the OS to create a corresponding kernel thread.).
 * Virtual Thread (New): Managed entirely by the JVM. Thousands (or millions) of virtual threads can run on a single OS thread (Many virtual threads map to Few OS threads).
 
 ### Producer-Consumer Multi-Threading Message Queue Example

@@ -49,7 +49,7 @@ hit error/exception that terminates JVM
 Java Virtual Machine (JVM) is used in the java runtime environment(JRE). 
 The original JVM was conceived as a bytecode interpreter.
 
-Java Just In Time (JIT) compiler takes to be executed byte code and compiles it into machine code at run time.
+Java Just In Time (JIT) compiler takes to be executed **byte code** and compiles it into **machine code** (which will actually get executed) at run time.
 
 In other words, the compiled `.class` files contain java byte code that is executable/compatible on multiple platforms; JIT converts the java byte code into machine code when the `.class` is loaded/executed.
 

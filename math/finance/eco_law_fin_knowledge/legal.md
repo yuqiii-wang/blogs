@@ -348,3 +348,7 @@ Vetting a customer: customer ID info, significant beneficial owners, e.g., with 
 
 In Faith and Testimony whereof I have hereunto set may hand and affixed my Seal of Office this 18th October 2008.
 我宣誓，以上证明属实，并于2008年10月18日在此公证书上签名并盖公证处印章.
+
+## Miscellaneous
+
+* Not Safe For Work (NSFW) is commonly used as a warning label for online content containing sexual, violent, offensive, or otherwise graphic material not suitable for public or professional viewing.

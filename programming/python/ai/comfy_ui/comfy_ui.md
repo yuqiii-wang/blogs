@@ -2,7 +2,7 @@
 
 ComfyUI is a node-based graphical user interface (GUI) for Stable Diffusion. Unlike simpler interfaces that hide the underlying mechanics, ComfyUI exposes the generation pipeline through a flowchart-like system of connected nodes.
 
-Typically, there are these steps:
+Typically, there are these (minimal) steps:
 
 1. (Batch) Image Input, CLIP Prompt Input
 2. VAE Encoding
