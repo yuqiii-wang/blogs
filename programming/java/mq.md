@@ -18,8 +18,8 @@ The data exchanged between systems. JMS defines standard message types, such as:
 
 #### Destinations
 
-* `Queues` (point-to-point): A message sent to a queue is delivered to one consumer.
-* `Topics` (publish-subscribe): A message sent to a topic is delivered to all subscribed consumers.
+* `Queues` (point-to-point): A message sent to a queue is delivered to one consumer， **one-to-one** mapping by queue name.
+* `Topics` (publish-subscribe): A message sent to a topic is delivered to all subscribed consumers, **one-to-all** broadcast.
 
 #### Connection Factories
 
@@ -34,7 +34,7 @@ Used to create connections to the messaging server.
 
 Implementations of the JMS API, like `Apache ActiveMQ`, `RabbitMQ`, and `IBM MQ`.
 
-### Producer and Consumer Example
+### Producer and Consumer Example: ActiveMQ
 
 * MQ Setup
 
@@ -292,6 +292,8 @@ public class SimpleMessagePublisher implements MessagePublisher {
     }
 }
 ```
+
+Message Consumer is
 
 ```java
 import javax.jms.*;

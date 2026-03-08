@@ -45,6 +45,40 @@ The Eclipse Foundation renamed "Java EE" to "Jakarta EE" and changed the package
 
 In Spring, the handling of HTTP requests, e.g., by multiple `@Controller` and `@FeignClient` components, the underlying management of these requests is handled by the embedded servlet container (e.g., *Tomcat*, *Jetty*).
 
+### Tomcat vs Spring Boot Relationship
+
+Start with the analogy: **Tomcat is the Web Server, Spring Boot is the Application Framework**.
+
+1.  **Historically (Before Spring Boot)**:
+    *   Downloaded Tomcat (Zip, Tar), unzipped it on a server.
+    *   Build Spring app into a `.war` file.
+    *   Copy the `.war` file into Tomcat's `webapps/` folder.
+    *   Tomcat started, loaded the `.war` file, and served the app.
+
+2.  **Spring Boot (The "Embedded" Way)**:
+    *   Spring Boot **inverts** this. It includes Tomcat *inside* application JAR file (as a library dependency).
+    *   When developer runs `java -jar myapp.jar`, Spring Boot starts up, as well as Tomcat
+    *   Tomcat then listens on port `8080` and forwards incoming HTTP requests to the Spring `DispatcherServlet`.
+
+#### Actual Work in Tomcat vs Spring Boot
+
+*   **Tomcat**: Opens the TCP socket (port 8080), manages raw connections, SSL handshakes, parses HTTP bytes into `HttpServletRequest` objects, and handles threads.
+*   **Spring Boot**: Takes that `HttpServletRequest`, routes it to the correct `@Controller`, executes business logic, and returns a JSON response.
+
+#### Threading in Spring Boot
+
+**The Flow**:
+1. (Tomcat): Tomcat's connector accepts a TCP connection.
+2. (Tomcat): It grabs a worker thread from its pool (e.g., named `http-nio-8080-exec-1`).
+3. (Spring): Tomcat calls Spring's `DispatcherServlet.service()` **on that same thread**.
+4. (Biz Code): `@RestController` method runs **on that same thread**.
+5. (Response): The return value is written to the socket **on that same thread**.
+
+Since Tomcat (the container) is multi-threaded, **Spring Boot is inherently multi-threaded** for each request uses ONE same thread from Tomcat to Spring Boot then back to Tomcat.
+In other words, by default multi-threading in Spring Boot refers to multi-request, but one request has ONLY one mapping to thread.
+
+By default Tomcat can handle 200 concurrent requests by the time of 2026.
+
 ### Spring MVC Request Handling
 
 Spring Boot uses Spring MVC to manage HTTP requests.
@@ -310,12 +344,12 @@ or `dev` is NOT active.
 public class NonDevDatasourceConfig { ... }
 ```
 
-### `@Configuration`, and `@bean` vs `@Component`
+### `@Configuration`, and `@Bean` vs `@Component`
 
-#### `@Configuration` and `@bean`
+#### `@Configuration` and `@Bean`
 
 `@Bean` is used within a `@Configuration` class to explicitly declare a bean.
-`@bean` is primitive compared to `@Component`, hence provided fine-grained control over instantiation.
+`@Bean` is primitive compared to `@Component`, hence provided fine-grained control over instantiation.
 
 In Spring, instantiated beans have a `singleton` scope by default.
 This is problematic, as exampled in below when `clientDao()` is called once in `clientService1()` and once in `clientService2()`, but only one singleton instance is returned.
@@ -347,7 +381,7 @@ public class AppConfig {
 }
 ```
 
-#### `@bean` vs `@Component`
+#### `@Bean` vs `@Component`
 
 * `@Component`
 
@@ -355,7 +389,7 @@ Be automatically detected and managed by Spring.
 
 For application-specific classes such as services, repositories, and controllers.
 
-* `@bean`
+* `@Bean`
 
 Need to configure beans for third-party libraries or have fine-grained control over bean instantiation.
 

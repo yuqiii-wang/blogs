@@ -440,3 +440,7 @@ create table EMPLOYEE (
 
 The Java object to SQL mapping is through middleware.
 One popular middleware is *Hibernate*.
+
+## Java Naming and Directory Interface (JNDI)
+
+

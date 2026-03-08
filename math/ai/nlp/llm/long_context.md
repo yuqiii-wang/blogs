@@ -42,6 +42,18 @@ $$
 \end{align*}
 $$
 
+As a result, LLM cloud provider may charge usage fee by steps that long context input/output has higher costs per same token length.
+
+For example, in Feb 2026, *Doubao-Seed-2.0-mini* from Volcano Engine (ByteDance, Mainland China) has below fee table:
+
+||cache hit|Cache storage|Batch inference input|Batch inference output|
+|:---|:---|:---|:---|:---|
+|<32k|0.04 Yuan/Million tokens|0.017 Yuan/Million tokens/hour|0.1 Yuan/Million tokens|1 Yuan/Million tokens|
+|<128k|0.08 Yuan/Million tokens|0.017 Yuan/Million tokens/hour|0.2 Yuan/Million tokens|2 Yuan/Million tokens|
+|<256k|0.16 Yuan/Million tokens|0.017 Yuan/Million tokens/hour|0.4 Yuan/Million tokens|4 Yuan/Million tokens|
+
+where longer context length inputs/outputs see higher token consumption costs.
+
 ## Context Length and RoPE
 
 RoPE (Rotary Position Embedding) uses a rotational transformation based on sine and cosine functions to encode the position information.

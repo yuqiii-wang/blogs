@@ -26,7 +26,7 @@ $$
 $$
 
 Face value explained: why clean price is lower than face value ?
-Clean price should be equal to face value (bond issuer declared price) if market/economy/bond issuer are totally stable, but this scenario is too much of ideal.
+Clean price should be equal to face value (bond issuer declared price) if market/economy/bond issuer credit are totally stable, but this scenario is too much of ideal.
 
 For example, below factors affect clean price
 -> Credit Quality of Issuer: If the creditworthiness of the bond issuer has deteriorated, the perceived risk of the bond increases.
@@ -60,7 +60,7 @@ A real-world example see below *A REPO Trade End Cash Estimation Example*.
 A trader earns profits from a REPO trade via *level* (a.k.a, REPO rate), which is the lending interest rate of a security.
 Some traders may use *fee* but it is converted to $\text{level}=\frac{\text{fee}}{\text{lentCash}}$ as the benchmark for analysis.
 
-### Naive Lending Interest Rate Estimation
+### Naive REPO Interest Rate Estimation
 
 The most accurate and easiest REPO rate estimation is to use the most recent (spot rate) same security dealing price and REPO rate.
 The market reference price and rate are accurate unless market observed high volatility, e.g., black swan events.
@@ -82,21 +82,40 @@ $$
 
 Popular currency benchmarks are
 
-* EUR -> ESTER
+* EUR -> ESTER/EONIA
 * USD -> SOFR
-* GBP -> SONIA
+* GBP -> SONIA/LIBOR
 * CAD -> CORRA
+* CNY -> SHIBOR
+* HKD -> HIBOR
 
-#### Risk-Based REPO Rate Setup
+#### Live Trade Reference
 
-A trader can reference below factors and give a conclusive REPO rate quote.
+This simply refers to market recently traded REPO as benchmark.
+The particular security mapped REPO rate can be set up as a fixed REPO rate.
 
-* Underlying security: whether it is corp ro govt bond, what are institutional ratings, e.g., Moody.
-* FX risk
-* Counterparty risk
-* Macro economic conditions and movements, e.g., black swan event that drive hot money to bond markets
+The typical mapping rule include
 
-### Available Inventory for Lending
+* Underlying Security
+* REPO Tenor
+* Quantity
+
+#### Overnight REPO as Reference 
+
+In REPO business, very frequent money needs are for short terms, just overnight as bridging money, e.g., to borrow cash to satisfy regulatory compliance of cash reserve; increase cash flow to beautify a company's financial report on the day of audit.
+As a result, ON/TN/SN are very frequently traded and the statistics can provide rich market movement info.
+If any pair of below indicators diverge, it signals market volatility.
+
+* Day Average Bid ON (Overnight/Next)
+* Day Average Bid TN (Tom/Next)
+* Day Average Bid SN (Spot/Next)
+* Day Average Ask ON (Overnight/Next)
+* Day Average Ask TN (Tom/Next)
+* Day Average Ask SN (Spot/Next)
+
+where "Day Average" means statistics over one day, "Next" means next day.
+
+### Available Security Inventory for Lending
 
 If in inventory there exists adequate inventory the above REPO rate formula can be used.
 However, if client asks (borrowing securities) for more quantity than internal inventory (trader compony provision),
@@ -108,6 +127,19 @@ Under this external request scenario, there incurs extra borrow cost.
 $$
 \text{level}=\text{outboundLendingREPORate}+\text{inboundBorrowCostRate}
 $$
+
+#### Inventory Source Priority
+
+Prefer to source securities from inventory by this order:
+
+1. Same legal entity internal inventory
+    * The cheapest
+2. Cross legal entities within authorized jurisdictions
+    * Slightly complicated given regulatory compliance
+3. Prime inventory
+    * Signed contracts with major lenders for mutual REPO trades with favorable rates
+4. External inventory
+    * Borrow securities from markets, most expensive
 
 #### Multi-Source Financing Quotes
 
@@ -151,13 +183,27 @@ Take into account the above institution A and institution B offers, by dynamic p
 </div>
 </br>
 
-### The Four Factors of REPO Rate Pricing
+### Other Common Factors of REPO Rate Pricing
 
 * Counterparty client credit
-* Traded Currency and ISIN
+    * Finance experts set up client spread based on client credit and if this client is a prime or not
+* Traded Currency and jurisdiction
+    * Cross-currency trades are riskier than mono-currency trades
+    * Some currency money is less/more liquid and volatile
+    * Some jurisdictions are difficult to operate, reflecting as in higher REPO commission fees to cover legal compliance costs
+* Underlying Security Quality
+    * Institutional ratings, e.g., Moody, S&P and Fitch
+    * Bond issuer credit
+* Total exposure to counterparty and security
+    * Large exposure to any security or counterparty is a risk.
 * Auto-rolling from a previous trade
-* Margin and volatility
-* Benchmark (e.g., ester, sofr, libor) volatility
+* Trade Date vs Settlement/Value Date
+    * When is REPO trade is agreed between traders, there is a time gap before the trade is actually settled ($t+1$ or $t+2$ settlement), and within these one or two days bond prices could fluctuate
+    * Extra spread can be added to penalize long settlement days.
+* Leverage by Netting
+    * $\text{leverage}=\frac{\sum_i^n|\text{sec}_i|}{\big|\sum_i^n\text{sec}_i\big|}$, where $\text{sec}_i$ represents the same security that is traded in $n$ different REPO trades.
+    * If traded $\text{sec}_i\in\text{Secs}$ have almost even num of directions (the quantity of bid is equal to offer), there is $\text{leverage}\gg 1$, and this give extra leverage of the same traded security
+    * If $\text{leverage}=1$ (either all trades are bid or offer), there is no leverage.
 
 ## A REPO Trade End Cash Estimation Example
 

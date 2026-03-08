@@ -172,6 +172,26 @@ class LifespanContext:
 
 ### `Depends` and `Annotated`
 
+### Websocket
+
+Given a typical websocket FastAPI server
+
+```py
+from fastapi import FastAPI, WebSocket
+
+app = FastAPI()
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()          # Step A
+    try:
+        while True:
+            data = await websocket.receive_text()  # Step B
+            await websocket.send_text(f"Message text was: {data}") # Step C
+    except WebSocketDisconnect:
+        print("Client disconnected")
+```
+
 ## Test with `fastapi.testclient`
 
 `TestClient` works its magic by interacting with FastAPI application directly in memory, completely bypassing the network layer.
