@@ -57,13 +57,30 @@ MCP eliminates the need for "m × n" integrations (connecting *m* models to *n* 
 - **MCP Client**: The protocol implementation within the Host that maintains a 1:1 connection with a server. It speaks the "MCP Language" (JSON-RPC) to translate the Host's intent into protocol messages.
 - **MCP Server**: A lightweight service that exposes specific capabilities (resources, prompts, tools). It can be a local process or a remote service.
 
-This architecture is built on two pillars:
+$$
+\begin{align*}
+\underset{\substack{\\\updownarrow\\\\\text{app tools and prompts}}}{\text{MCP Client}
+}
+\underset{\substack{\text{user}\\\text{app}}}{\in}\underset{\substack{\\\updownarrow\\\\\text{LLM}}}{\text{MCP Host}}&\xleftrightarrow{\text{rpc-json}}\text{MCP Server}
+\begin{cases}
+  \xleftrightarrow{\text{bespoke api}} \text{resources} \begin{cases}\text{readable streams, e.g.,} \\
+  \text{sql results, json, logs} \end{cases} \\
+  \text{server prompts and tools}
+  \end{cases}
+\end{align*}
+$$
 
-- **Transport Layer**: Uses JSON-RPC 2.0 over uniform transports (stdio, SSE), creating a standardized message format for all requests and responses. This unifies how data flows between the AI model and external systems.
-- **Capability Primitives**:
-    - **Resources**: Exposes data as readable streams via custom URI schemes (e.g., `file:///logs/app.log`), normalizing how context is fetched regardless of the source.
-    - **Prompts**: Standardizes prompt engineering templates, allowing servers to define their own interaction patterns (e.g., "Summarize this document").
-    - **Tools**: Defines a strict schema for executable functions, decoupling the model's high-level intent from the tool's specific implementation logic.
+#### MCP Development Work
+
+1. **Developing an MCP Server (The API Adapter)**
+   - **Goal**: Expose a bespoke backend (Database, internal logic, third-party service) to any MCP-compatible AI.
+   - Define the explicit JSON schemas for the **Tools**, **Prompts**, or **Resources**.
+
+2. **Developing an MCP Host/Client (The AI Application)**
+    - Implement the protocol (or use a client SDK) to manage connection lifecycles (spinning up local binaries or connecting to remote endpoints).
+    - Query connected servers for their capabilities (`tools/list`).
+    - Pass these discovered tool schemas as standard "Function Calling" definitions to underlying LLM.
+    - When the LLM generates a tool call, route it through the MCP Client as a JSON-RPC `tools/call` message and return the serialized result back to the LLM context.
 
 #### Example: Cross-Context Debugging (Technical Flow)
 
@@ -81,8 +98,38 @@ Consider a scenario where an AI assistant investigates a production incident. Te
     }
     ```
 
+    **LLM Reasoning Phase**: The Host feeds the retrieved log string back into the LLM's context window. The LLM reads the log, spots a critical timestamp or error message (e.g., "deadlock detected at 2023-10-27T10:00:00Z"), and deduces the next troubleshooting step is checking the database state. It correlates this intent with the available tool schemas and outputs a structured request to call the `run_query` tool.
+    
+    > **Note: What is a Tool Schema?**
+    > A tool schema is indeed a JSON object (specifically, standard JSON Schema) provided to the LLM beforehand. For example:
+    > ```json
+    > {
+    >   "name": "run_query",
+    >   "description": "Executes a SELECT query on the Postgres database.",
+    >   "inputSchema": {
+    >     "type": "object",
+    >     "properties": {
+    >       "sql": { "type": "string", "description": "The SQL query to run." }
+    >     },
+    >     "required": ["sql"]
+    >   }
+    > }
+    > ```
+    > When LLM decides to use a tool, it outputs a specialized JSON structure containing the exact string `"name"` of the tool (e.g., `"run_query"`) and the generated keyword arguments that match the schema.
+    > 
+    > **Example of LLM Output (Tool Call):**
+    > ```json
+    > {
+    >   "type": "function",
+    >   "function": {
+    >     "name": "run_query",
+    >     "arguments": "{ \"sql\": \"SELECT * FROM locks WHERE created_at > '2023-10-27T10:00:00Z'\" }"
+    >   }
+    > }
+    > ```
+
 2.  **Querying Database (Tool Execution via `tools/call`)**:
-    Based on the log timestamps, the Host invokes a SQL query on the Postgres Server to find locked rows.
+    Acting on the LLM's generated tool call, the Host invokes a SQL query on the Postgres Server to find locked rows.
     ```json
     // Request (Host -> Postgres Server)
     {
@@ -98,42 +145,6 @@ Consider a scenario where an AI assistant investigates a production incident. Te
 
 3.  **Data Unification**:
     Both servers respond with standard JSON objects. The FS Server returns a `contents` blob (text/base64), and the Postgres Server returns a structured `content` list. The AI model receives these normalized inputs, oblivious to the underlying implementation details (e.g., file descriptors or TCP sockets).
-
-#### Example: GitHub Copilot as an MCP Host
-
-GitHub Copilot (in VS Code) acts as the **MCP Host**, mediating between the User, the LLM, and local MCP Servers.
-
-1.  **Tool Discovery**:
-    When VS Code starts, it connects to configured MCP servers (defined in `.vscode/mcp.json`). It sends `tools/list` to discover available capabilities.
-    ```json
-    // Copilot (Host) asks Server: "What can you do?"
-    { "jsonrpc": "2.0", "method": "tools/list", "id": 1 }
-    ```
-
-2.  **Intent to Execution**:
-    User asks: *"Check the active PRs for this repo."*
-    - **Copilot (LLM)**: Decides to use the `github-mcp-server`. It generates the *payload* for the tool call: `{"repo": "owner/repo", "status": "open"}`.
-    - **Copilot (Host)**: Wraps this payload in the standard JSON-RPC envelope and sends it to the server.
-
-    ```json
-    // Host constructs the envelope, populating 'method' and 'id'.
-    // LLM populates 'name' and 'arguments'.
-    {
-      "jsonrpc": "2.0",
-      "method": "tools/call",
-      "params": {
-        "name": "list_pull_requests",
-        "arguments": {
-            "repo": "microsoft/vscode",
-            "state": "open"
-        }
-      },
-      "id": 2
-    }
-    ```
-
-3.  **Result Integration**:
-    The generic `github-mcp-server` executes the API call using its stored credentials and returns a JSON array of PRs. Copilot receives this textual data and summarizes it for the user.
 
 ### 8. Fine-tuning
 
