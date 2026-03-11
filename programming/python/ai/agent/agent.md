@@ -47,7 +47,7 @@ An AI system that uses an LLM as a "brain" to reason, plan, and execute actions 
 
 ### 7. MCP (Model Context Protocol)
 
-An open interoperability standard that solves the fragmentation problem in AI tool integration. Originally developed by Anthropic, it replaces bespoke API connectors with a universal protocol based on **JSON-RPC 2.0**. This standardization allows AI assistants (like Claude or IDEs) to connect to any data source—from local PostgreSQL databases to remote services like Google Drive—using a single, unified interface.
+MCP is an open interoperability standard that solves the fragmentation problem in AI tool integration. Originally developed by Anthropic, it replaces bespoke API connectors with a universal protocol based on **JSON-RPC 2.0**. This standardization allows AI assistants (like Claude or IDEs) to connect to any data source—from local PostgreSQL databases to remote services like Google Drive—using a single, unified interface.
 
 #### Protocol Architecture & Data Unification
 
@@ -58,16 +58,14 @@ MCP eliminates the need for "m × n" integrations (connecting *m* models to *n* 
 - **MCP Server**: A lightweight service that exposes specific capabilities (resources, prompts, tools). It can be a local process or a remote service.
 
 $$
-\begin{align*}
-\underset{\substack{\\\updownarrow\\\\\text{app tools and prompts}}}{\text{MCP Client}
-}
-\underset{\substack{\text{user}\\\text{app}}}{\in}\underset{\substack{\\\updownarrow\\\\\text{LLM}}}{\text{MCP Host}}&\xleftrightarrow{\text{rpc-json}}\text{MCP Server}
+\underbrace{
+\underset{\substack{\\\updownarrow\\\\\text{app tools and prompts}}}{\text{MCP Client}}
+\underset{\substack{\text{user}\\\text{app}}}{\in} \underset{\substack{\\\updownarrow\\\\\text{(external) LLM}}}{\text{MCP Host}}
+\xleftrightarrow[\text{(stdio or SSE)}]{\text{JSON-RPC 2.0}} \text{MCP Server}}_{\text{on the same computer}}
 \begin{cases}
-  \xleftrightarrow{\text{bespoke api}} \text{resources} \begin{cases}\text{readable streams, e.g.,} \\
-  \text{sql results, json, logs} \end{cases} \\
-  \text{server prompts and tools}
-  \end{cases}
-\end{align*}
+  \xleftrightarrow[\text{(HTTP / WS / SQL / etc.)}]{\text{bespoke protocol}} \text{external systems} \\
+  \text{exposes: resources, prompts, tools}
+\end{cases}
 $$
 
 #### MCP Development Work
@@ -146,6 +144,39 @@ Consider a scenario where an AI assistant investigates a production incident. Te
 3.  **Data Unification**:
     Both servers respond with standard JSON objects. The FS Server returns a `contents` blob (text/base64), and the Postgres Server returns a structured `content` list. The AI model receives these normalized inputs, oblivious to the underlying implementation details (e.g., file descriptors or TCP sockets).
 
+#### The `stdio_client`
+
+The `stdio_client` (Standard Input/Output Client) is the default and preferred way for MCP clients to talk to an MCP Server.
+The `stdio_client` launches the server script **as a sub-process** (the client automatically spawns a shiny new child process).
+
+The actual client agent/workflow `run_agent(query, context, mcp_session)` is wrapped within the MCP stdio session.
+
+```py
+# Establish an stdio connection, then wrap it in an MCP ClientSession
+async with stdio_client(server_params) as (read, write):
+    async with ClientSession(read, write) as mcp_session:
+        # Initialize with the server
+        await mcp_session.initialize()
+        
+        # Execute the Agentic workflow
+        query = "Am I allowed to attend? If so, please send an email with my gate pass."
+        context = {"email": "alice@example.com"}
+        
+        final_answer = await run_agent(query, context, mcp_session)
+        print(f"\n✅ Final Answer:\n{final_answer}")
+```
+
+The Read vs Write:
+
+* Write channel: When the agent wants to call a tool, it writes a JSON-RPC message directly to the server's stdin (Standard Input).
+* Read channel: When the server replies with the status of the email text, it prints JSON to its stdout (Standard Output). The agent captures this stream as data, not text on a screen.
+
+Benefits:
+
+* No Port Collisions Nor Network Setup, e.g. "Port 5000 is already in use"
+* Zero Orphaned Severs: The connection is bound to the parent process. If client app stops, MCP server terminates the data stream.
+* Security: MCP is a on-prem protocol with stdio, no need of network, hence most of malicious online attacks are avoided.
+
 ### 8. Fine-tuning
 
 The process of taking a pre-trained base model and training it further on a specific dataset to specialize it for a particular task or tone, rather than relying solely on prompting.
@@ -161,9 +192,3 @@ A general-purpose AI agent designed to execute complex workflows. Instead of jus
 ### 2. OpenClaw
 
 An open-source personal AI agent that focuses on local execution and privacy. It connects to personal tools (calendar, email, Slack) to perform actions on the user's behalf. It is known for its "skills" marketplace where users can download new capabilities for their agent.
-
-### 3. Other Notable Products
-
-- **Operator (OpenAI)**: An agent capable of browsing the web and performing multi-step tasks.
-- **Computer Use (Anthropic)**: A capability allowing Claude to control a computer cursor and keyboard to accomplish tasks previously requiring human intervention.
-

@@ -8,11 +8,12 @@ To answer this question, the AI cannot simply hallucinate a response. It needs a
 
 ### Key Components
 
-1.  **User Context**: The system must know *who* is asking (e.g., `user_email: "alice@example.com"`).
-2.  **Skills (The "Specialists")**: Modules that group specific tools and logic for distinct tasks (e.g., Registration vs. Security).
-3.  **Tools (The "Hands")**: Python functions the AI can call to fetch structured data.
-4.  **RAG / Knowledge Base (The "Library")**: Unstructured documents like the Event FAQ or Code of Conduct.
-5.  **The Agent (The "Brain")**: The LLM loop that orchestrates the above.
+1.  **User Context**: The state dictionary holding caller identity and session constraints (e.g., `user_email: "alice@example.com"`).
+2.  **Skills**: Modular domain-specific routers. They declare their scope via semantic descriptions, allowing the Agent to dynamically load relevant sub-routines (e.g., Registration vs. Event Check-in).
+3.  **Tools**: Executable functions (local Python code or remote endpoints) exposed to the LLM via explicit JSON-schema definitions for fetching structured data or performing mutations.
+4.  **RAG / Knowledge Base**: Unstructured, vector-embedded documents (like Event FAQ or Code of Conduct) used for zero-shot semantic retrieval to ground the LLM's answers.
+5.  **Agent / Routing Logic**: The core LLM orchestration loop. It iteratively evaluates context, schedules tool executions, and parses structural responses adhering to the ReAct framework.
+6.  **MCP Server Integration**: The Model Context Protocol (MCP) provider. A standardized out-of-process component that securely exposes external enterprise capabilities (email queues, SMS gateways, external APIs) to the Agent via JSON-RPC.
 
 ## 2. Defining Tools & Skills
 
@@ -354,7 +355,93 @@ The Agent sees a flag ("potential_duplicate"). It might need to check policy.
 *   **Action**: Call `search_event_policy("duplicate registration policy")`
 *   **Observation**: "Policy Section 4.2: Duplicate registrations solely for the purpose of holding spots are void. Accidental duplicates will be merged at check-in."
 
-### Step 6: Final Synthesis
+## 4. External MCP Server Integration
+
+For production deployments, the Agent should delegate outbound notifications and third-party data lookups to an external MCP (Microservice Communication Platform) server. The MCP server centralizes integrations for email, SMS, real-time traffic, and other external channels so the Agent remains stateless and auditable.
+
+Key responsibilities
+- **Email notifications**: transactional emails (checkin confirmations, receipts), templating, retries, DKIM/SPF settings.
+- **SMS messages**: OTPs, short notices (use a provider with delivery receipts and rate-limiting).
+- **Real-time public traffic**: query traffic APIs (Google/HERE/TomTom) for ETA estimates and venue delays.
+- **Webhook delivery**: reliable outgoing webhooks to notify other systems (gate turnstiles, CRM).
+
+Architecture & APIs
+- MCP exposes simple HTTP JSON endpoints the Agent can call as tools:
+    - `POST /v1/notify/email` {to, subject, template_id, data} -> {id, status}
+    - `POST /v1/notify/sms` {to, message, sender_id} -> {id, status}
+    - `GET  /v1/traffic?lat={lat}&lon={lon}` -> {status, eta_minutes, incidents: []}
+    - `POST /v1/webhook` {target, payload, idempotency_key} -> {id, status}
+
+Security & operational notes
+- Authenticate using API keys or mTLS; rotate keys and limit scopes per environment.
+- Enforce idempotency for retries (use `idempotency_key` for notifications).
+- Record delivery receipts and expose status endpoints so the Agent can check final state.
+- Respect PII: avoid logging full personal data in plain text; redact if persisted.
+
+Sample MCP Server using FastMCP
+- The most popular framework in Python is the official `mcp` SDK (using `FastMCP`).
+- You annotate the Python functions to be exposed as tools with `@mcp.tool()`.
+
+```python
+# Server code (mcp_server.py)
+# pip install mcp
+from mcp.server.fastmcp import FastMCP
+import uuid
+
+# Initialize the FastMCP server
+mcp = FastMCP("Checkin Notifications")
+
+@mcp.tool()
+def send_email(to: str, subject: str, template: str, data: dict) -> dict:
+    """Sends an email notification via the MCP server and returns delivery status."""
+    return {"id": f"mcp-{uuid.uuid4()}", "status": "queued", "recipient": to}
+
+@mcp.tool()
+def send_sms(to: str, message: str) -> dict:
+    """Sends an SMS message and returns provider response."""
+    return {"id": f"mcp-{uuid.uuid4()}", "status": "queued"}
+
+@mcp.tool()
+def get_traffic_info(lat: float, lon: float) -> dict:
+    """Queries for ETA and incident data based on coordinates."""
+    return {"eta_minutes": 15, "incidents": []}
+
+if __name__ == "__main__":
+    # Runs the server using Standard Input/Output (stdio) for smooth Agent integration
+    mcp.run()
+```
+
+Providers and tooling
+- Email: SendGrid, Mailgun, Amazon SES.
+- SMS: Twilio, MessageBird, Nexmo.
+- Traffic: Google Traffic API, HERE, TomTom.
+- Message queue: RabbitMQ, Kafka, or Cloud Pub/Sub for high-throughput dispatch.
+
+Webhook event schema (example)
+
+```json
+{
+    "event": "checkin_completed",
+    "user": {"name": "Alice Smith", "email": "alice@example.com"},
+    "ticket": {"type": "VIP", "id": "abc-123"},
+    "timestamp": "2024-05-01T15:23:00Z"
+}
+```
+
+Delivery & observability
+- Expose a `/v1/status/{id}` endpoint for delivery state (queued/sent/failed).
+- Emit structured logs and metrics (latency, failure-rate, retries) to monitoring (Prometheus/Grafana).
+
+Example: sending a check-in confirmation (sequence)
+1. Agent verifies registration and calls `send_email()` tool.
+2. Tool calls MCP `/v1/notify/email` and returns `{id: "mcp-123", status: "queued"}`.
+3. MCP dispatches to provider and updates delivery state; Agent can poll or subscribe to webhook callbacks for final delivery status.
+
+Adding MCP support keeps the Agent focused on reasoning and policies while a hardened platform handles external channels, compliance, retries, and provider specifics.
+
+
+## Step 5: Final Synthesis
+
 The Agent combines the tool output and the policy context to generate the answer.
 *   **Final Answer**: "Yes, you have a confirmed General Admission ticket. However, your account is flagged as a potential duplicate. According to our policy, this usually just means we'll need to merge your records at the check-in desk, but you are allowed to attend."
 
@@ -362,34 +449,84 @@ The Agent combines the tool output and the policy context to generate the answer
 > The "Agent" is actually just a `while` loop that keeps feeding **tool results** back into the LLM as new messages.
 > 1. User Message -> 2. LLM Tool Call -> 3. Execute Python Code -> 4. Send Tool Result Message -> 5. LLM Final Answer
 
+Below is the **refactored all-in-one client app** (`agent_client.py`). It combines establishing the standard I/O connection to the MCP Server with running the ReAct "Agent Loop" that intelligently routes tool calls.
+
 ```python
-def run_agent(user_query, user_context):
+import asyncio
+import json
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+# (Assume `llm`, `check_registration`, `search_event_policy`, and `execute_tool` are defined locally)
+SYSTEM_PROMPT = "You are a helpful check-in assistant. Use tools if necessary."
+
+async def run_agent(user_query, user_context, mcp_session):
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": f"User: {user_context['email']}\nQuery: {user_query}"}
     ]
     
+    # 1. Dynamically discover tools from the external MCP server
+    mcp_tools_response = await mcp_session.list_tools()
+    
+    # Translate MCP tool schemas into the format expected by your specific LLM (e.g., OpenAI)
+    mcp_tools = [format_mcp_to_llm_schema(t) for t in mcp_tools_response.tools] 
+    
+    # Combine your python local tools with the remote MCP tools
+    all_tools = [check_registration, search_event_policy] + mcp_tools
+    
     while True:
-        # 1. Ask LLM what to do
-        response = llm.chat(messages, tools=[check_registration, search_event_policy])
+        # 2. Ask LLM what to do, passing ALL available tools
+        response = await llm.chat(messages, tools=all_tools)
         
-        # 2. Check if LLM wants to run a tool
+        # 3. Check if LLM wants to run a tool
         if response.tool_calls:
             for tool_call in response.tool_calls:
-                # 3. Execute logic (Function Calling)
                 function_name = tool_call.function.name
-                args = tool_call.function.arguments
+                # Parse arguments safely depending on LLM client format
+                args = tool_call.function.arguments 
                 
                 print(f"🤖 Agent is calling {function_name} with {args}...")
-                result = execute_tool(function_name, args)
                 
-                # 4. Feed result back to LLM
+                # 4. Route Execution: Local vs MCP
+                if function_name in [t.name for t in mcp_tools_response.tools]:
+                    # Forward tool call directly to the MCP Server
+                    mcp_result = await mcp_session.call_tool(function_name, args)
+                    result = mcp_result.content
+                else:
+                    # Execute standard local logic
+                    result = execute_tool(function_name, args)
+                
+                # 5. Feed result back to LLM
                 messages.append({
                     "role": "tool",
                     "content": json.dumps(result),
                     "tool_call_id": tool_call.id
                 })
         else:
-            # 5. No more tools needed, return final answer
+            # 6. No more tools needed, return final answer
             return response.content
+
+async def main():
+    # Setup MCP Server connection configuration
+    server_params = StdioServerParameters(
+        command="python",
+        args=["mcp_server.py"]
+    )
+
+    # Establish an stdio connection, then wrap it in an MCP ClientSession
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as mcp_session:
+            # Initialize with the server
+            await mcp_session.initialize()
+            
+            # Execute the Agentic workflow
+            query = "Am I allowed to attend? If so, please send an email with my gate pass."
+            context = {"email": "alice@example.com"}
+            
+            final_answer = await run_agent(query, context, mcp_session)
+            print(f"\n✅ Final Answer:\n{final_answer}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
