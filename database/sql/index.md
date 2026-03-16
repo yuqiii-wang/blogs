@@ -109,11 +109,17 @@ Table data can be sorted in only way, therefore, there can be only one clustered
 
 For example, given a B-tree physical storage structure below, entry rows have individual index column (marked as shadow rectangle), which is a pointer linked to relevant `WHERE` condition rows (as specified in `KEY`).
 
-
-<div style="display: flex; justify-content: center;">
-      <img src="imgs/clustered_indexing.png" width="40%" height="30%" alt="clustered_indexing" />
-</div>
-</br>
+```mermaid
+graph TD
+    Root["Root Node (Key: 50)"] --> Node1["Intermediate Node (Keys: 1-49)"]
+    Root --> Node2["Intermediate Node (Keys: 50-100)"]
+    
+    Node1 --> Leaf1["Leaf Node (Data Rows: 1-25)"]
+    Node1 --> Leaf2["Leaf Node (Data Rows: 26-49)"]
+    
+    Node2 --> Leaf3["Leaf Node (Data Rows: 50-75)"]
+    Node2 --> Leaf4["Leaf Node (Data Rows: 76-100)"]
+```
 
 * non-clustered index
 

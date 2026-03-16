@@ -1,6 +1,0 @@
-# roles/flask_app/defaults/main.yml
----
-flask_app_repo: https://github.com/yourusername/your-flask-app-repo.git
-flask_app_branch: main
-flask_app_dest: /opt/flask-app
-flask_app_port: 5000

@@ -192,6 +192,63 @@ async def websocket_endpoint(websocket: WebSocket):
         print("Client disconnected")
 ```
 
+where
+
+* `await websocket.accept()`
+  * **Client Request**: Sends HTTP request with `Connection: Upgrade`, `Upgrade: websocket`, and a base64-encoded `Sec-WebSocket-Key`.
+  * **Server Handshake**: FastAPI signals Uvicorn to perform the handshake.
+  * **Key Processing**: Uvicorn appends a magic string to `Sec-WebSocket-Key`, hashes with SHA-1, and base64-encodes it.
+  * **Response**: Returns HTTP 101 (Switching Protocols) with the hash in `Sec-WebSocket-Accept`.
+  * **Connection Established**: TCP socket remains open, upgraded to WebSocket.
+
+* `await websocket.send_text() / send_json()`
+  * **Serialization**: `send_json()` uses `json.dumps()` (requires thread lock) to convert dict to string.
+  * **Encoding**: String is encoded to UTF-8 bytes.
+  * **Data Framing**: Uvicorn wraps bytes in a WebSocket Frame, constructing a binary header with:
+    * FIN bit (is final fragment?)
+    * Opcode (e.g., `0x1` Text, `0x2` Binary)
+    * Payload length
+  * **Syscalls & I/O**: Framed bytes are dumped into the OS TCP send buffer using async I/O (e.g., `epoll`, `kqueue`).
+
+#### Computation Costs in Websocket
+
+* Websocket conn init takes time to process HTTP request and protocol upgrade. For performance tuning, one can add `sleep(1)` if last 3 secs saw more than 5 ws conn established, or there are too many active ws channels in progress streaming data.
+* JSON Serialization Cost (if by `send_json()`): `json.dumps()` needs to serialize python dict to string
+* Framing Overhead: Constructing the binary headers and executing OS-level network I/O is the heaviest part of sending a message. As a result, sending every streaming token is time-consuming, and one can cache streaming data with an internal of 0.3 sec, or by a local buffer.
+
+Below is the example of performance-tuned FastAPI ws func.
+
+```py
+import asyncio
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+
+app = FastAPI()
+
+active_ws_sessions = 0  # Global tracker
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    global active_ws_sessions
+    
+    if active_ws_sessions >= 5:
+        await asyncio.sleep(1)        # Throttling connection init if system is busy
+        
+    await websocket.accept()          # Step A
+    active_ws_sessions += 1
+    
+    try:
+        buffer = []
+        while True:
+            buffer.append(await websocket.receive_text())  # Receive and cache
+            if len(buffer) >= 10:                          # Send in batches
+                await websocket.send_text(f"Batch messages: {buffer}")
+                buffer.clear()
+    except WebSocketDisconnect:
+        print("Client disconnected")
+    finally:
+        active_ws_sessions -= 1       # Decrement on exit
+```
+
 ## Test with `fastapi.testclient`
 
 `TestClient` works its magic by interacting with FastAPI application directly in memory, completely bypassing the network layer.

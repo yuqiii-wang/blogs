@@ -1,7 +1,0 @@
-# deploy_flask_app.yml
----
-- name: Deploy Python Flask Application
-  hosts: webservers
-  become: yes
-  roles:
-    - flask_app

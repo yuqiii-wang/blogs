@@ -7,13 +7,33 @@
 * `#` Protected
 * `~` Package/NamespaceGroup
 
-![uml_symbols](imgs/uml_symbols.png "uml_symbols")
+```mermaid
+classDiagram
+    class Visibility {
+        +Public
+        -Private
+        #Protected
+        ~Package
+    }
+```
 
 ## Examples and explains
 
 * Association: relationship between classes,
 
-![uml_association_example](imgs/uml_association_example.png "uml_association_example")
+```mermaid
+classDiagram
+    class Person {
+        +Person()
+        +~Person()
+        +subscribe(magazineName)
+    }
+    class Magazine {
+        +Magazine()
+        +~Magazine()
+    }
+    Person --> Magazine : subscribe
+```
 
 ```cpp
 class Person {
@@ -32,7 +52,27 @@ public:
 
 * Inheritance: 
 
-![uml_inheritance_example](imgs/uml_inheritance_example.png "uml_inheritance_example")
+```mermaid
+classDiagram
+    class Person {
+        +int age
+        +std::string name
+        +Person()
+        +~Person()
+    }
+    class Student {
+        +std::list~int~ grades
+        +Student()
+        +~Student()
+    }
+    class Professor {
+        +std::list~int~ listOfStudents
+        +Professor()
+        +~Professor()
+    }
+    Person <|-- Student
+    Person <|-- Professor
+```
 ```cpp
 class Person {
 public:
@@ -62,7 +102,33 @@ serves as interfaces.
 
 Only virtual functions are allowed in interfaces.
 
-![uml_implementation_example](imgs/uml_implementation_example.gif "uml_implementation_example")
+```mermaid
+classDiagram
+    class Person {
+        <<interface>>
+        +std::string firstName
+        +std::string lastName
+        +~Person()*
+        +setFirstName(name)*
+        +setLastName(name)*
+    }
+    class Student {
+        +std::string major
+        +Student()
+        +~Student()
+        +setFirstName(name)
+        +setLastName(name)
+    }
+    class Professor {
+        +int Salary
+        +Professor()
+        +~Professor()
+        +setFirstName(name)
+        +setLastName(name)
+    }
+    Person <|.. Student
+    Person <|.. Professor
+```
 
 ```cpp
 class Person {
@@ -112,7 +178,21 @@ public:
 
 Beware of lifecycle of dependent classes, whether they should be demised after a mapping relationship is finished.
 
-![uml_aggregation_example](imgs/uml_aggregation_example.png "uml_aggregation_example")
+```mermaid
+classDiagram
+    class Class {
+        -std::string m_name
+        -std::list~Student~ students
+        +Class(name)
+        +std::string getName()
+    }
+    class Professor {
+        -std::list~std::shared_ptr~Class~~ myClasses
+        +Professor(classPtr)
+    }
+    Professor o-- Class : myClasses
+    Class *-- Student : students
+```
 
 ```cpp
 class Class {

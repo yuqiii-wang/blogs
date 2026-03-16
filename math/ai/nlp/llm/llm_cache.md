@@ -24,6 +24,76 @@ $$
 
 This matrix multiplication can be easily parallelized.
 
+#### Masking in Prefill
+
+In autoregressive prefill, a causal mask $M$ is applied using the Hadamard product (element-wise multiplication, $\odot$) to prevent tokens from attending to future tokens. The mask is typically a lower-triangular matrix of 1s (allowed) and 0s (masked):
+
+$$
+S_{masked} = S \odot M = 
+\begin{bmatrix}
+s_{11} & s_{12} & \cdots & s_{1n} \\
+s_{21} & s_{22} & \cdots & s_{2n} \\
+\vdots & \vdots & \ddots & \vdots \\
+s_{n1} & s_{n2} & \cdots & s_{nn}
+\end{bmatrix}
+\odot
+\begin{bmatrix}
+1 & 0 & \cdots & 0 \\
+1 & 1 & \cdots & 0 \\
+\vdots & \vdots & \ddots & \vdots \\
+1 & 1 & \cdots & 1
+\end{bmatrix}
+=
+\begin{bmatrix}
+s_{11} & 0 & \cdots & 0 \\
+s_{21} & s_{22} & \cdots & 0 \\
+\vdots & \vdots & \ddots & \vdots \\
+s_{n1} & s_{n2} & \cdots & s_{nn}
+\end{bmatrix}
+$$
+
+#### Example Parallel Computation in Prefill
+
+Let prompt be "I want to buy", tokenized and embedded to $[\mathbf{t}_1, \mathbf{t}_2, \mathbf{t}_3, \mathbf{t}_4]$.
+Let attention score be $a_{j,i}$ where $j$ is the target token position and $i$ is the position being attended to.
+The softmax applies to the unnormalized attention scores $s_{j,i} = \frac{Q_j K_i^T}{\sqrt{d_k}}$:
+
+$$
+a_{j,i} = \text{softmax}(s_{j,i}) = \frac{\exp(s_{j,i})}{\sum_{k=1}^j \exp(s_{j,k})}
+$$
+
+This prompt in prefill is computed as
+
+$$
+\def\arraystretch{1.5}
+\begin{matrix}
+\mathbf{h}_1 & \mathbf{h}_2 & \mathbf{h}_3 & \mathbf{h}_4 \\
+\uparrow & \uparrow & \uparrow & \uparrow \\
+a_{1,1}V_1 & \sum_{j=1}^2 a_{2,j}V_j & \sum_{j=1}^3 a_{3,j}V_j & \sum_{j=1}^4 a_{4,j}V_j \\
+\uparrow & \uparrow & \uparrow & \uparrow \\
+\frac{Q_1 K_1^T}{\sqrt{d_k}} & \frac{Q_2 [K_1, K_2]^T}{\sqrt{d_k}} & \frac{Q_3 [K_1 \cdots K_3]^T}{\sqrt{d_k}} & \frac{Q_4 [K_1 \cdots K_4]^T}{\sqrt{d_k}} \\
+\uparrow & \uparrow & \uparrow & \uparrow \\
+(Q_1,K_1,V_1) & (Q_2,K_2,V_2) & (Q_3,K_3,V_3) & (Q_4,K_4,V_4) \\
+\uparrow & \uparrow & \uparrow & \uparrow \\
+\mathbf{t}_1 (\text{"I"}) & \mathbf{t}_2 (\text{"want"}) & \mathbf{t}_3 (\text{"to"}) & \mathbf{t}_4 (\text{"buy"})
+\end{matrix}
+$$
+
+In prefill stage, there is no need of redirecting $\mathbf{h}_i$ to input as in prompt the token $\mathbf{t}_i$ is the actual input.
+For prompt tokens are known then shall by masking they can be computed in parallel.
+
+In summary, $\mathbf{h}_4$, which will be sent to prediction in inference, is computed by
+
+$$
+\mathbf{h}_4=\sum^4_{i=1}a_{4,i} V_i,\qquad a_{4,i}=\text{softmax}\Big(\frac{Q_4K_i^{\top}}{\sqrt{d_k}}\Big)
+$$
+
+This computation need input of below matrices:
+
+* $Q_4$
+* $K_1, K_2, K_3, K_4$
+* $V_1, V_2, V_3, V_4$
+
 ### Decode
 
 Once the prefill is complete and the KV cache is populated, the LLM switches to the decode phase. This is the autoregressive part of the process, where the model generates the output one token at a time.
