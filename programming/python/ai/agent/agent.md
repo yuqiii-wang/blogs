@@ -23,20 +23,36 @@ graph TD
 
 Structures the agent as a state machine where nodes denote discrete operations (e.g., LLM calls, tool executions) and edges dictate conditional control flow based on an explicitly managed state object.
 
-The diagram illustrates a state machine workflow where tasks are analyzed and routed to either a researcher or a coder, and then evaluated by a reviewer who can either approve the outcome or loop it back to the coder for revisions.
+The diagram illustrates a state machine workflow where tasks are analyzed and either routed to a researcher or broadcasted in parallel to a cluster of specialized coders. Since a comprehensive feature update requires API coordination, the task and specs are distributed simultaneously to Backend, Frontend, UI, and DevOps. This allows all domains to evaluate the API feasibility concurrently. The submitted code first passes through a Tester node; if any tests fail, the workflow loops back for revisions. If all tests pass, the output is routed to a Reviewer (acting as a BA) to align API specs, ultimately approving the outcome or requesting further parallel revisions.
 
 ```mermaid
 graph TD
-    Start([Start]) --> Analyzer[Analyzer]
+    Start([Start]) --> BizRequirement[Biz Requirement]
     
-    Analyzer -->|task_type == 'research'| Researcher[Researcher]
-    Analyzer -->|task_type == 'coding'| Coder[Coder]
+    BizRequirement -->|complex| Researcher[Researcher]
+    BizRequirement -->|easy| Reviewer[Reviewer / BA: Align API Specs]
+
+    subgraph Coder Cluster
+        SpecBroadcast -->|verify & implement DB/API| Backend[Backend Coder]
+        SpecBroadcast -->|verify & implement Client| Frontend[Frontend Coder]
+        SpecBroadcast -->|verify & provision Infra| DevOps[DevOps Infra]
+    end
     
-    Researcher --> Reviewer[Reviewer]
-    Coder --> Reviewer
+    Researcher --> Reviewer
+    Backend <-->|passed/failed| CodeSafety[Safety Checker: Compilation and Sanity]
+    Frontend <-->|passed/failed| CodeSafety
+    DevOps <-->|passed/failed| CodeSafety
     
-    Reviewer -->|status == 'needs_revision'| Coder
-    Reviewer -->|status == 'approved'| End([End])
+    CodeSafety -->|passed| Tester[Tester: Run Test Scenarios]
+    CodeSafety -->|passed| UIChecker[UIChecker: Vision Comprehension]
+    
+    Tester ~~~ UIChecker
+        
+    Tester <-->|tests_passed / adjust_tests| Reviewer
+    UIChecker <-->|tests_passed / adjust_UI| Reviewer
+    
+    Reviewer -->|api_spec_design| SpecBroadcast
+    Reviewer -->|all_validated| End([End])
 ```
 
 

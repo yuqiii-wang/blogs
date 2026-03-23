@@ -4,6 +4,18 @@
 
 ### CDN
 
+A *Content Delivery Network* (CDN) is a globally distributed set of edge nodes that **cache** and **serve content closer to the user** to minimize network latency.
+
+```mermaid
+graph LR
+    Client --> POP["nearest edge POP"]
+    POP --> CacheHit{"cache hit?"}
+    CacheHit -- Yes --> Serve1[serve]
+    CacheHit -- miss --> OriginFetch["origin fetch"]
+    OriginFetch --> Cache[cache]
+    Cache --> Serve2[serve]
+```
+
 ### HTTP Cache in Frontend
 
 ## DNS (Domain Name System)

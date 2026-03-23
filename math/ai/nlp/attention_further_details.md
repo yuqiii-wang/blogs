@@ -158,22 +158,38 @@ $$
 
 The standard deviation $\sqrt{d}$ describes the mean variance that $\frac{1}{\sqrt{d}}$ makes every score back to standard normal distribution $s \sim N(0, 1)$.
 
-
 ### Multi-Head Attention
 
-Define an attention head $\text{head}_i=\text{Attention}(Q_i,K_i,V_i)$, for multi-head, there is
+Define an attention head $\text{head}_h=\text{Attention}(Q_h,K_h,V_h)$, for $n_h$ multi-heads, there is
 
 $$
-\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \text{head}_2, ..., \text{head}_n) W^O
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \text{head}_2, ..., \text{head}_{n_h}) W^O
 $$
 
 where $W^O$ is a learned weight matrix.
 
-For each head (per-head projections), there are
+For each head $h$ (where $h = 1, 2, ..., n_h$), there are three projection matrices.
 
 $$
-Q_i=XW^Q_i,\quad K_i=XW^K_i,\quad V_i=XW^V_i,\quad
+Q_h=XW^Q_h,\quad K_h=XW^K_h,\quad V_h=XW^V_h,\quad
 $$
+
+#### Input $X$ and Weights $W$
+
+Let $d_m$ be model dimensions. The prompt/input is of $X\in\mathbb{R}^{n\times d_m}$.
+
+For weight projection (from input space to per-head space), there are
+
+$$
+W^Q_h \in \mathbb{R}^{d_m\times d_k}, \quad
+W^K_h \in \mathbb{R}^{d_m\times d_k}, \quad
+W^V_h \in \mathbb{R}^{d_m\times d_v}
+$$
+
+Typically, it is chosen that $d_k = d_v = d_m / n_h$ where $n_h$ is the total number of heads, making all weight matrices uniformly sized at $\mathbb{R}^{d_m\times d_k}$.
+For example, for BERT-base, there is $d_k=64=768/12$, for BERT-large, there is $d_k=64=1024/16$.
+
+By weight project $XW$, the input space is transformed into QK attention space.
 
 #### Why Multi-Head
 
@@ -193,28 +209,26 @@ To retain the shape to `[batch_size, seq_length, d_model]`, there is $W^O \in \m
 
 ### Multi-Query Attention
 
-MQA modifies the above by sharing the key and value projections across all heads. In this case, each head $i$ still has its own query projection, but the keys and values come from shared matrices
+MQA modifies the above by sharing the key and value projections across all heads. In this case, each head $h$ still has its own query projection, but the keys and values come from shared matrices.
 
-For each head (per-head projections), there are
+For each head $h$, there are:
 
 $$
-Q_i=XW^Q_i,\quad K=XW^K,\quad V=XW^V,\quad
+Q_h=XW^Q_h,\quad K=XW^K,\quad V=XW^V,\quad
 $$
 
-Here, the shared key/value matrices reduce the overall number of parameters and memory accesses compared to maintaining separate $W_i^K$ and $W_i^V$.
+Here, the shared key/value matrices reduce the overall number of parameters and memory accesses compared to maintaining separate $W_h^K$ and $W_h^V$.
 
 ### Grouped-Query Attention
 
 GQA introduces a compromise by grouping the heads, allowing each group to have its own key and value projections, while the queries remain head-specific.
 
-Suppose the $h$ heads are partitioned into $g$ groups (with $g<h$).
-Let $G_j$ denote the set of heads in group $j$.
-Then, for a head $i$ in group $j$:
-
-For each head (per-head projections), there are
+Suppose the $n_h$ heads are partitioned into $g$ groups (with $n_g<n_h$).
+Let $G_g$ denote the set of heads in group $g$.
+Then, for a head $h$ in group $g$:
 
 $$
-Q_i=XW^Q_i,\quad K_j=XW_j^K,\quad V_j=XW_j^V,\quad
+Q_h=XW^Q_h,\quad K_g=XW_g^K,\quad V_g=XW_g^V,\quad
 $$
 
 ### Self-Attention vs Cross-Attention
