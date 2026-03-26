@@ -29,19 +29,18 @@ This matrix multiplication can be easily parallelized.
 In autoregressive prefill, a causal mask $M$ is applied using the Hadamard product (element-wise multiplication, $\odot$) to prevent tokens from attending to future tokens. The mask is typically a lower-triangular matrix of 1s (allowed) and 0s (masked):
 
 $$
-S_{masked} = S \odot M = 
+S_{masked} = S + M = 
 \begin{bmatrix}
 s_{11} & s_{12} & \cdots & s_{1n} \\
 s_{21} & s_{22} & \cdots & s_{2n} \\
 \vdots & \vdots & \ddots & \vdots \\
 s_{n1} & s_{n2} & \cdots & s_{nn}
-\end{bmatrix}
-\odot
+\end{bmatrix} +
 \begin{bmatrix}
-1 & 0 & \cdots & 0 \\
-1 & 1 & \cdots & 0 \\
+0 & -\infty & \cdots & -\infty \\
+0 & 0 & \cdots & -\infty \\
 \vdots & \vdots & \ddots & \vdots \\
-1 & 1 & \cdots & 1
+0 & 0 & \cdots & 0
 \end{bmatrix}
 =
 \begin{bmatrix}

@@ -170,9 +170,36 @@ Different from financing for individual investors, prime brokerage targets hedge
 A business premise which is used to warehouse (i.e. store) goods.
 In finance, it refers to the depot account where securities and cash are registered.
 
-* Nostro
+* Nostro vs Vostro
 
-An account that a bank holds in a foreign currency at another bank.
+*Nostro* ("ours") and *vostro* ("yours") are accounting terms (usually in the banking industry) used to distinguish account ownership/custody conditions in holding foreign currency funds.
+
+Perspective:
+> Nostro (Ours): A domestic bank (Bank A) holds funds in a foreign bank (Bank B).
+
+> Vostro (Yours): A foreign bank (Bank B) holds funds on behalf of a domestic bank (Bank A).
+
+Currency & Location:
+
+> Nostro: Held in the foreign country's local currency (e.g., US Bank holding GBP in London).
+
+> Vostro: Held in the local currency of the bank holding the funds (e.g., London bank holding USD for a US bank).
+
+Purpose:
+
+> Nostro: Used to manage foreign assets and facilitate payments in foreign currency.
+
+> Vostro: Used to process payments and settlements for foreign clients, often acting as a custodian.
+
+Accounting View:
+
+> Nostro: Recorded as a cash asset by the bank that owns the account.
+
+> Vostro: Recorded as a liability by the bank hosting the account. 
+
+Example
+
+>If State Bank of India (SBI) holds an account with JPMorgan in New York (USD), that is a Nostro account to SBI. For JPMorgan, it is a Vostro account, as they are holding funds for SBI.
 
 * tranche
 

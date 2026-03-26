@@ -372,10 +372,21 @@ P.S. do not get confused with the context length, e.g., 128k, which is interpola
 
 Below plot shows that YaRN can effectively extend the context length.
 
-<div style="display: flex; justify-content: center;">
-      <img src="imgs/yarn_evaluation_results.png" width="60%" height="40%" alt="yarn_evaluation_results" />
-</div>
-</br>
+```mermaid
+---
+title: Context Window vs Perplexity
+---
+xychart-beta
+    x-axis ""Context Window [0, 20000, 40000, 60000, 80000, 100000, 120000, 140000]
+    y-axis "Perplexity (lower is better)" 2.2 --> 3.8
+    line "CodeLlama-13b-hf" [3.8, 3.2, 2.8, 2.6, 2.4, 2.3, 2.3, 2.3]
+    line "Yarn-Llama-2-13b-64k" [3.8, 3.3, 2.7, 2.5, 2.3, 2.3, 3.8 ]
+    line "Yarn-Llama-2-13b-128k" [3.8, 3.1, 2.6, 2.4, 2.3, 2.2, 2.2, 2.2]
+    line "togethercomputer/LLaMA-2-7B-32K" [3.8, 3.4, 2.9, 2.7, 3.8]
+    line "CodeLlama-7b-hf" [3.8, 3.3, 2.8, 2.6, 2.4, 2.4, 2.6, 2.8]
+    line "Yarn-Llama-2-7b-64k" [3.8, 3.3, 2.8, 2.6, 2.4, 2.4, 3.8]
+    line "Yarn-Llama-2-7b-128k" [3.8, 3.2, 2.7, 2.5, 2.4, 2.3, 2.5, 2.7]
+```
 
 #### DeepSeek-V2 YaRN Setup
 
