@@ -72,6 +72,64 @@ Besides for $\frac{QK^{\top}}{\sqrt{d_k}}\in\mathbb{R}^{n\times n}$ scales quadr
 
 ### Prefill and Chain Decoding Output
 
+### LLM Limitations
+
+The following tasks should be delegated to deterministic local tools (e.g., Python scripts) invoked by an agent, rather than passed directly to the LLM as prompt input.
+
+Here takes csv manipulation as an example, if user directly ingests csv as input in attempt tp edit the csv matrix entries indexed by row and col, or aggregate delimiter counts, LLMs frequently produce erroneous results/hallucinations.
+
+```txt
+name, age, city, name, age, city, ...
+  ^     ^    ^     ^    ^    ^
+  |     |    |     |    |    |
+  0     4    8    12   16   20  (approximate positions with period=4)
+```
+
+#### Vulnerable Prompt Structures
+
+Token generation collapse occurs with **highly periodic token patterns** where the same tokens repeat at fixed intervals:
+- CSV/tabular data (commas at positions {0, 4, 8, 12, ...})
+- Structured formats (JSON, XML, HTML)
+- Repetitive list operations and boilerplate code generation
+
+Additionally, when users repeatedly request clarification on the same topic within a progressively constrained context, the LLM's output may exhibit token repetition. 
+
+##### Mathematical Root Cause
+
+Under RoPE position embeddings, tokens at periodic intervals compute identical relative attention scores:
+
+$$
+\text{score}(\mathbf{q}_m, \mathbf{k}_n) = \mathbf{q}_1^{\top} R_{n-m} \mathbf{k}_1
+$$
+
+For periodic delimiters with distance $\Delta$ (e.g., $\Delta = 4$ in CSV), the rotation matrix $R_\Delta$ is identical across all periodic token pairs. This creates **striped attention patterns** where softmax concentrates weight almost entirely on periodic positions:
+
+$$
+\alpha_{\text{periodic}} = \frac{\exp(s_{\text{high}})}{\exp(s_{\text{high}}) + \sum_{\text{other}} \exp(s_{\text{low}})} \approx 0.9999
+$$
+
+The context vector becomes dominated:
+
+$$
+\mathbf{c}_n \approx \mathbf{v}_{\text{separator}}, \quad \text{destroying semantic information}
+$$
+
+#### Likely Hallucination in Precise Tasks, e.g., Counting Num
+
+For example, if let LLM to count how many commas there are in a csv file, very likely LLM would hallucinate a wrong num to put in answer.
+
+There is no accumulator or side-channel — the "count so far" would have to be encoded entirely within the attention weights $\alpha_{mn}$.
+Under RoPE, however, the attention score between any query token and a comma token depends only on their relative distance:
+
+$$
+\alpha_{m,\,m-\Delta} \propto \exp\!\left(\mathbf{q}_1^\top R_\Delta \mathbf{k}_1\right)
+$$
+
+Since all commas in a CSV are separated by the same field-width $\Delta$, every comma token produces an **identical** $\alpha$ regardless of its absolute position. The context vector $\mathbf{c}_m$ therefore carries no information about *how many* commas have been seen — only that commas exist at distance $\Delta$. The LLM cannot distinguish a file with 3 commas from one with 300.
+
+In summary, the attention formula $\text{softmax}\left(\frac{QK^{\top}}{\tau \cdot \sqrt{d_k}}\right)V$ captures **only token relevance information** and lacks inherent numeric computation capability.
+Consequently, tasks requiring precise numerical operations—such as arithmetic calculations—are fundamentally susceptible to hallucination.
+
 ## Prompts & Context
 
 LLM inputs can be broadly considered as prompts.
@@ -242,6 +300,25 @@ However, skill is different from prompt in how it is incorporated into the LLM's
 - **Prompt**: All prompt content (system, user, and example messages) is injected into the context window at the very start of the LLM session. This means the model receives the full prompt in one batch, which defines its initial behavior and constraints.
 - **Skill**: Skills are **progressively loaded**—they are only injected into the context when the agent determines they are relevant to the current step or subtask, e.g., first few lines of content to see if the following text is relevant to user query, otherwise discarded.
 
+#### Context Length Consideration for Development
+
+For example, in March 2026, *Doubao-Seed-2.0-mini* from Volcano Engine (ByteDance, Mainland China) has below fee table:
+
+||cache hit|Cache storage|Batch inference input|Batch inference output|
+|:---|:---|:---|:---|:---|
+|<32k|0.04 Yuan/Million tokens|0.017 Yuan/Million tokens/hour|0.1 Yuan/Million tokens|1 Yuan/Million tokens|
+|<128k|0.08 Yuan/Million tokens|0.017 Yuan/Million tokens/hour|0.2 Yuan/Million tokens|2 Yuan/Million tokens|
+|<256k|0.16 Yuan/Million tokens|0.017 Yuan/Million tokens/hour|0.4 Yuan/Million tokens|4 Yuan/Million tokens|
+
+Same time, *Gemini 3.1 Pro* from Google has these step charge
+
+|Context Length|Input cost (per mil tokens)|Output cost (per mil tokens)|
+|:---|:---|:---|
+|<=200k|$\$2.00$|$\$12.00$|
+|>200k|$\$4.00$|$\$18.00$|
+
+However, technically LLMs can support up to 1 million tokens in chat mode (as of March 2026). Despite this capability, API providers typically cap production access at 256k tokens. This discrepancy reflects **commercial strategy** rather than technical constraints: while larger context windows are attractive as marketing features ("flexing muscle"), they impose significant operational costs in serving those larger requests.
+
 ## Embeddings & Similarity (Emb Sim)
 
 - **Embeddings**: Converting text (or images) into a list of numbers (vectors) that represent semantic meaning. "Dog" and "Puppy" will have vectors that are numerically close.
@@ -282,6 +359,26 @@ graph TD
     Tool --> |Execution Results| AgentJudge
     Condition -- No --> Output([Final Output])
 ```
+
+### Harness Engineering (Agent Development)
+
+Harness engineering refers to the systematic practices for building reliable, efficient, and scalable LLM applications in production environments. Rather than treating LLMs as black boxes, harness engineering applies engineering rigor to context management, tool integration, and orchestration.
+
+In other words, harness engineering is about how to let agent better work with LLM.
+
+1. Structured Output & Schema Enforcement
+    * Enforce JSON/schema constraints; reject unpredictable free-form text.
+2. Context Window Optimization
+    * Prefix Caching: Reuse expensive computed MCP resource reads or code snippets across requests.
+    * Trace Summarization: Compress large chat histories into summary bullet points before feeding to the LLM.
+    * Selective Skill Loading: Only inject relevant skill documentation into context when the agent's plan decides to use them (avoid loading all 50 skills into every request).
+3. Deterministic Local Execution
+    * Delegate deterministic tasks to code, not LLMs.
+4. Monitoring, Evaluation & Telemetry
+    * Answer acceptance, latency, token consumption, etc
+5. Hallucination Mitigation
+    * Paraphrase user query to neutral statement
+    * Generate opposing arguments and compare strength. Default to "uncertain" if inconclusive.
 
 ### Multi-Agent System Modes: Technical Summary & Comparison
 
@@ -340,19 +437,18 @@ graph TD
 
 #### Comparison Table
 
-| Mode           | Scalability | Coordination | Fault Tolerance | Example Use Case                |
+| Mode           | Scalability | Coordination | Fault Tolerance | Example Use Case               |
 |----------------|------------|--------------|-----------------|---------------------------------|
 | Independent    | High       | None         | High            | Batch processing, simple query  |
 | Decentralized  | Medium     | Emergent     | Medium-High     | Swarm robotics, P2P search      |
 | Centralized    | Medium     | Strong       | Low-Medium      | Workflow orchestration          |
 | Hybrid         | High       | Flexible     | Medium-High     | Large-scale agentic LLM systems |
 
-
 ### Multi-Agent Cluster & Orchestration (LangGraph Approach)
 
 While a single agent loop is powerful, complex applications require an **Agent Cluster**—multiple specialized agents working together. Orchestrating these agents effectively is crucial to manage complexity, avoid infinite loops, and maintain shared context.
 
-**LangGraph** provides a robust conceptual framework for this orchestration by modeling multi-agent workflows as stateful graphs:
+**LangGraph** (by March 2026, the most popular agent orchestration framework) provides a robust conceptual framework for this orchestration by modeling multi-agent workflows as stateful graphs:
 
 1. **State (Shared Memory)**: The context of the operation (e.g., overall task, chat history, intermediate results, structured data) is maintained in a central "State" object. Every agent in the cluster reads from and writes updates to this shared State.
 2. **Nodes (Agents & Tools)**: Each specialized agent (e.g., "Researcher", "Coder", "Reviewer") or tool execution step is represented as a Node in the graph. A Node takes the current State as input, performs its specialized task, and outputs an update to the State.
@@ -585,6 +681,24 @@ Fine-tuning takes a pre-trained base model and trains it further on a specific d
 Knowledge Distillation is a technique used to transfer the "knowledge" of a massive, complex model (the **Teacher**) to a smaller, more efficient model (the **Student**). Rather than training the student model purely on raw dataset labels, it is trained to mimic the outputs, reasoning patterns, or internal representations of the teacher model.
 - **Soft Targets**: The student learns from the comprehensive probability distributions (soft labels) generated by the teacher instead of just the final answer. This preserves the nuanced understanding of the teacher (e.g., recognizing that an answer, while incorrect, might still be semantically close).
 - **Efficiency**: This approach creates compact models that run significantly faster and require far less computing power to host (lowering deployment costs), while retaining a performance level that punches way above their parameter count.
+
+## LLM Evaluation
+
+### General User Satisfaction
+
+How to let user provide feedback with ease.
+
+Design a function to export formatted data; build pipeline to integrate user interface.
+
+#### Answer Adoption Rate
+
+#### Latency
+
+### Hallucination
+
+### AI Safety Use
+
+### Commercial Benefits vs Token Consumption Cost
 
 ## AI toC Products (Consumer Agents)
 

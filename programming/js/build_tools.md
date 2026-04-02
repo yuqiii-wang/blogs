@@ -1,5 +1,309 @@
 # Development Tools
 
+As of 2026, below compilation tools are popular:
+
+|Tool|Speed|Bundling|Tree-shaking|Config|Use Case|
+|:---|:---|:---|:---|:---|:---|
+|tsc|Slow|❌ No|❌ No|`tsconfig.json`|Type-checking  only|
+|esbuild|⚡ Very Fast|✅ Yes|✅ Yes|JSON or JS|Production builds|
+|webpack|Slow|✅ Yes|✅ Yes|Complex|Large SPAs|
+|vite|⚡ Very Fast|✅ Yes|✅ Yes|Simple|Modern development, HMR|
+|tsc + esbuild|Fast|✅ Yes|✅ Yes|Both files|Type-check + bundle|
+---
+
+where
+
+* *Tree-shaking* is dead code elimination at the module level — the bundler statically analyzes `import`/`export` statements and removes any exported code that is never actually imported/used.
+* HMR Hot Module Replacement, which is used in dev server that developer can make changes on code then the part of change will be soon re-rendered.
+  1. File watcher
+  2. Compiler recompiles only the changed module
+  3. WebSocket message
+  4. Browser swaps module
+* SPA (Single Page Application) — a web app that loads a single HTML file once and dynamically updates the page content via JavaScript, without full page reloads.
+  * Browser loads `index.html` + a JS bundle once
+
+## Tool Dependency Overview
+
+**Vite stack** — Vite layers on top of three lower-level tools:
+
+```mermaid
+graph BT
+    GO[Go runtime]
+    NODE[Node.js]
+    TSC[tsc type checking]
+    ESB[esbuild bundling + minification]
+    ROLLUP[Rollup tree-shaking]
+    VITE[Vite HMR dev server · env · proxy]
+
+    GO --> ESB
+    NODE --> TSC
+    NODE --> ROLLUP
+
+    ESB -->|dep pre-bundling dev transforms| VITE
+    ROLLUP -->|production bundling| VITE
+    TSC -->|type-check pass| VITE
+```
+
+**Webpack stack** — Webpack delegates transpilation to Babel or tsc via loaders:
+
+```mermaid
+graph BT
+    NODE[Node.js]
+    BABEL[Babel ES6+→ES5 · JSX]
+    TSC[tsc type checking]
+    WP[Webpack loaders · plugins · module federation]
+
+    NODE --> BABEL
+    NODE --> TSC
+
+    BABEL -->|babel-loader| WP
+    TSC -->|ts-loader| WP
+```
+
+**What each layer adds**:
+
+| Tool | Built on | Adds on top |
+|:---|:---|:---|
+| **esbuild** | Go | Raw speed: bundling, minification, TS type-stripping (no type checking) |
+| **tsc** | Node.js | Full TypeScript type checking and `.d.ts` generation |
+| **Rollup** | Node.js | Tree-shaking, ES module output, clean library bundles |
+| **Babel** | Node.js | Pluggable transpilation (JSX, proposals, ES6+→ES5 polyfills) |
+| **Webpack** | Node.js + Babel/tsc | Loaders for any file type, plugin ecosystem, code-splitting, module federation |
+| **Vite** | esbuild + Rollup + tsc | HMR dev server, env file handling, proxy, zero-config React/Vue/Svelte |
+
+## Configuration Files Overview
+
+| File | Purpose | Scope |
+|:---|:---|:---|
+| **`package.json`** | Declares dependencies, scripts, metadata | Project-wide |
+| **`tsconfig.json`** | TypeScript compiler settings | TypeScript compilation |
+| **`webpack.config.js`** | Webpack bundler configuration | Bundling & module loading |
+| **`vite.config.js`** | Vite dev server & build configuration | Dev server & production build |
+| **`.babelrc` / `babel.config.js`** | Babel transpiler presets & plugins | Code transpilation (ES6+ → ES5) |
+| **`.sourcemap` files** | Debug maps linking minified code to source | Development & debugging |
+| **`.eslintrc.json`** | ESLint linting rules | Code quality & style |
+| **`.env` / `.env.local`** | Environment variables | Runtime configuration |
+| **`.gitignore`** | Files to exclude from git | Version control |
+
+
+JavaScript/TypeScript projects use multiple config files to control different aspects of the build, development, and testing workflows:
+
+```mermaid
+graph TD
+    PJ[package.json scripts & deps]
+    PJ -->|npm run dev / build| VITE[vite.config.js]
+    PJ -->|npm run build| WP[webpack.config.js]
+    PJ -->|tsc| TSC[tsconfig.json]
+    PJ -->|npm run lint| ESL[.eslintrc.json]
+```
+
+**Vite pipeline** — Vite reads these configs when building or serving:
+
+```mermaid
+graph TD
+    VITE[vite.config.js] -->|reads| TSC[tsconfig.json type checking & paths]
+    VITE -->|loads| ENV[.env / .env.local env variables]
+    VITE -->|optionally invokes| BABEL[babel.config.js transpilation presets]
+    BABEL -->|strips types via| TSC
+    VITE -->|emits| SM[.js.map / .css.map source maps]
+```
+
+**Webpack pipeline** — Webpack reads these configs when bundling:
+
+```mermaid
+graph TD
+    WP[webpack.config.js] -->|babel-loader uses| BABEL[babel.config.js transpilation presets]
+    WP -->|reads| ENV[.env / .env.local env variables]
+    BABEL -->|strips types via| TSC[tsconfig.json]
+    WP -->|emits| SM[.js.map / .css.map source maps]
+```
+
+**Version control exclusions**:
+
+```mermaid
+graph TD
+    GI[.gitignore] -->|excludes| NM[node_modules/]
+    GI -->|excludes| DIST[dist/ build/]
+    GI -->|excludes| ENVL[.env.local secret overrides]
+    GI -->|excludes| SM[.js.map source maps optional]
+```
+
+### `package.json` — Project Metadata & Scripts
+
+Declares project name, version, dependencies, and runnable scripts.
+
+```json
+{
+  "name": "my-app",
+  "version": "1.0.0",
+  "description": "A sample app",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint src/",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "vite": "^4.0.0"
+  }
+}
+```
+
+**Key fields**:
+- `scripts`: Commands run via `npm run <script>` (e.g., `npm run dev`)
+- `dependencies`: Packages required at runtime
+- `devDependencies`: Packages only needed during development (build tools, test runners)
+- `type: "module"`: Enables ES6 module syntax (default in modern Node.js)
+
+### `babel.config.js` / `.babelrc` — Transpilation Config
+
+Babel converts modern ES6+ JavaScript into backward-compatible ES5 so older browsers can run the code.
+
+```js
+// babel.config.js
+module.exports = {
+  presets: [
+    ['@babel/preset-env', { targets: { browsers: ['last 2 versions'] } }],
+    '@babel/preset-react',  // For JSX syntax
+    '@babel/preset-typescript' // For TypeScript
+  ],
+  plugins: [
+    '@babel/plugin-proposal-class-properties',
+    '@babel/plugin-transform-runtime'
+  ]
+}
+```
+
+**Common presets**:
+- `@babel/preset-env`: Converts ES6+ to ES5 (respects target browsers)
+- `@babel/preset-react`: Transpiles JSX to `React.createElement()` calls
+- `@babel/preset-typescript`: Strips type annotations
+
+**Difference from `tsconfig.json`**: 
+- `tsconfig.json` controls **what JavaScript target version to emit** (ES2020, ES2015, etc.)
+- Babel presets control **backward compatibility** (e.g., turning `?.` optional chaining into ES5-compatible code)
+
+### `.sourcemap` Files (`.js.map`, `.css.map`)
+
+Generated by bundlers/compilers to map minified/transpiled code back to original source—essential for debugging.
+
+**Generated during build** (usually in `dist/` or `build/`):
+```
+dist/
+├── bundle.js          (minified, hard to read)
+└── bundle.js.map      (maps to original src/index.js)
+```
+
+**How it works**:
+1. Bundler compiles `src/index.ts` → `dist/bundle.js` (300 lines → 5 lines, minified)
+2. Generates `dist/bundle.js.map` with references: "line 1, column 10 in bundle.js came from line 45, column 3 in src/index.ts"
+3. Browser/debugger reads the `.map` file to show **original source** in dev tools
+
+**Enable in configs**:
+```js
+// webpack.config.js
+module.exports = {
+  devtool: 'source-map', // or 'eval-source-map' for faster builds
+  ...
+}
+```
+
+```js
+// vite.config.js
+export default {
+  build: {
+    sourcemap: true, // or 'hidden' to generate but not serve
+  }
+}
+```
+
+### `.eslintrc.json` / `.eslintignore` — Code Linting
+
+ESLint enforces code style and catches errors:
+
+```json
+{
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "no-unused-vars": "warn",
+    "semi": ["error", "always"],
+    "quotes": ["error", "single"]
+  }
+}
+```
+
+Run: `npm run lint` (defined in `package.json` scripts)
+
+### `tsconfig.json` — TypeScript Compiler
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",       // Output JS version
+    "module": "ESNext",       // Module format (ESNext for Vite, commonjs for Node)
+    "lib": ["ES2020", "DOM"], // Type definitions to include
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,           // Enable all strict type checks
+    "moduleResolution": "bundler", // Use "node" for webpack/Node.js
+    "sourceMap": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+```
+
+### `webpack.config.js` — Webpack Bundler
+
+```js
+// webpack.config.js (minimalist)
+const path = require('path');
+
+module.exports = {
+  entry: './src/index.ts',
+  output: { path: path.resolve(__dirname, 'dist'), filename: 'bundle.js' },
+  resolve: { extensions: ['.ts', '.tsx', '.js'] },
+  module: {
+    rules: [
+      { test: /\.tsx?$/, use: 'ts-loader', exclude: /node_modules/ },
+      { test: /\.css$/, use: ['style-loader', 'css-loader'] }
+    ]
+  },
+  devtool: 'source-map',
+  mode: 'development'
+};
+```
+
+### `vite.config.js` — Vite Dev Server & Build
+
+```js
+// vite.config.js (minimalist)
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: { port: 5173 },    // Dev server port
+  build: { outDir: 'dist', sourcemap: true }
+})
+```
+
 ## `npm` and `npx`
 
 ### `npm` (Node Package Manager)
@@ -39,71 +343,7 @@
 *   **`--no-install`**: Fails if the package is not already installed locally (updates prevention).
 *   **`--ignore-existing`**: Forces `npx` to ignore existing locally installed binaries and use a fresh cache.
 
-## Webpack
-
-```js
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
-module.exports = {
-  // 1. Entry point of the application
-  entry: './src/index.js', 
-  
-  // 2. Output configuration where the bundled files will be placed
-  output: {
-    path: path.resolve(__dirname, 'dist'), 
-    filename: 'bundle.js', 
-    clean: true // Clean up the 'dist' folder before each build
-  },
-  
-  // 3. Module rules to handle different file types
-  module: {
-    rules: [
-      {
-        // 4. Rule for JavaScript and JSX files (Transpile ES6+ and JSX to ES5)
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env', '@babel/preset-react'],
-          },
-        },
-      },
-      {
-        // 5. Rule for CSS files
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        // 6. Rule for images (handling images like .png, .jpg, etc.)
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
-        type: 'asset/resource',
-      },
-    ],
-  },
-
-  // 7. Plugins (extensions that hook into the Webpack build process)
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: './src/index.html', // Generates index.html and includes the bundle
-    }),
-  ],
-
-  // 8. Development server configuration
-  devServer: {
-    contentBase: path.join(__dirname, 'dist'),
-    compress: true, // Enable gzip compression for everything served
-    port: 9000, // Serve the application at localhost:9000
-    hot: true, // Enable hot module replacement
-  },
-
-  // 9. Set the mode for different optimizations (can be 'development', 'production', or 'none')
-  mode: 'development',
-};
-```
-
-### General Flow of Webpack
+## General Flow of Webpack
 
 Webpack's build process follows a specific lifecycle:
 
@@ -133,6 +373,33 @@ While **Loaders** transform specific modules (per file type), **Plugins** serve 
 *   **Host**: The app consuming a module.
 *   **Remote**: The app exposing a module.
 *   It enables sharing common dependencies (like React or Lodash) so they aren't downloaded twice.
+
+## esbuild
+
+esbuild is an extremely fast JavaScript/TypeScript bundler and minifier written in Go. It is **10–100× faster** than webpack or tsc alone, making it the engine powering Vite's dependency pre-bundling.
+
+**Key characteristics**:
+- Written in Go (compiled native binary) — no JIT overhead
+- Parallelizes work across all CPU cores
+- Does **not** perform type checking — strips TypeScript types without validating them
+- No plugin ecosystem as rich as webpack; best for straightforward builds
+
+**Minimalist config** (`build.js`):
+
+```js
+// build.js — run with: node build.js
+import * as esbuild from 'esbuild'
+
+await esbuild.build({
+  entryPoints: ['src/index.ts'],
+  bundle: true,         // Bundle all imports into one file
+  minify: true,         // Minify output
+  sourcemap: true,      // Generate .js.map
+  target: ['es2020'],   // Output JS version
+  outfile: 'dist/bundle.js',
+  platform: 'browser',  // or 'node'
+})
+```
 
 ## Vite
 

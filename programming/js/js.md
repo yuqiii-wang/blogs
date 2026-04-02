@@ -62,6 +62,23 @@ After which, React compares the virtual DOM to the actual DOM to figure out what
 
 where for `display: block;` vs `display: inline;`, the `inline` display aims to fit content within only necessary space, e.g., ignores width and height.
 
+## JavaScript ES Standards Timeline
+
+JavaScript ES Standards (also called ECMAScript) are official specifications for JavaScript. "ES" stands for ECMAScript Standard.
+
+By 2026, the ES developments are as below.
+
+| Standard | Release | Key Features |
+|:---|:---|:---|
+| ES5 (ECMAScript 5) | 2009 | `strict mode`, `Object.create()`, getters/setters, `Array.prototype` methods |
+| ES6 / ES2015 | 2015 | `class`, `let`/`const`, arrow functions, template literals, destructuring, `Promise`, modules |
+| ES2016 | 2016 | `Array.prototype.includes()`, exponentiation operator (`**`) |
+| ES2017 | 2017 | `async`/`await`, `Object.entries()`, `Object.values()` |
+| ES2018 | 2018 | Rest/spread in objects, `Promise.prototype.finally()`, async iterators |
+| ES2019 | 2019 | `Array.prototype.flat()`, `Array.prototype.flatMap()`, `Object.fromEntries()` |
+| ES2020 | 2020 | Optional chaining (`?.`), nullish coalescing (`??`), `BigInt`, dynamic `import()` |
+| ES2021+ | 2021+ | Logical assignment (`&&=`, `\|\|=`), numeric separators, `Promise.any()` |
+
 ## Single thread and Event Loop
 
 * JS is single-thread
@@ -80,7 +97,96 @@ Modern JS uses features like `Promises` and the `async`/`await` syntax to give b
 
 Web Workers can give multiple threads for execution.
 
-## JS Inheritance by Prototype
+## JS Syntax
+
+### `this` Binding: Changes With Call Context
+
+Unlike Java/C++ where `this` always refers to the current instance, in JS `this` depends on **how the function is called**, not where it's defined:
+
+```js
+const obj = {
+  name: "Alice",
+  greetRegular: function() { console.log(this.name); }, // this = obj ✓
+  greetArrow:   () =>        { console.log(this.name); }, // this = outer scope ✗
+};
+obj.greetRegular(); // "Alice"
+obj.greetArrow();   // undefined — arrow functions do NOT bind their own `this`
+
+// Passing a method as callback loses `this`
+setTimeout(obj.greetRegular, 100); // undefined — `this` is now window/undefined
+setTimeout(() => obj.greetRegular(), 100); // "Alice" — arrow wrapper preserves context
+```
+
+**Rule:** Use regular functions for object methods; use arrow functions for callbacks inside them.
+
+### Truthy / Falsy: Six Falsy Values
+
+JS coerces any value to boolean in `if` / `||` / `&&`. Only **six values are falsy** — everything else is truthy:
+
+```js
+// Falsy: false, 0, "" (empty string), null, undefined, NaN
+if (0)         {} // skipped
+if ("")        {} // skipped
+if (null)      {} // skipped
+
+// Truthy surprises (these all pass)
+if ([])        {} // empty array is truthy!
+if ({})        {} // empty object is truthy!
+if ("0")       {} // non-empty string is truthy!
+```
+
+### `==` vs `===`: Type Coercion vs Strict Equality
+
+`==` coerces types before comparing — results are unintuitive. Always use `===`:
+
+```js
+0   == "0"    // true  ← string coerced to number
+0   == false  // true  ← false coerced to 0
+""  == false  // true
+null == undefined // true  ← special rule
+
+0   === "0"   // false ✓
+null === undefined // false ✓
+```
+
+### `+` Operator: Addition or Concatenation
+
+`+` with any string coerces to string concatenation, not addition:
+
+```js
+1 + 2 + "3"  // "33"  (left-to-right: 3, then "3" + "3")
+"1" + 2 + 3  // "123"
+"5" - 1      // 4     (- only does numeric, coerces "5" to 5)
+```
+
+### Closures: Functions Capture Surrounding Scope
+
+A function remembers the variables from the scope it was **defined** in, even after that scope has exited — no analog in Java/C++:
+
+```js
+function makeCounter() {
+  let count = 0;                    // `count` lives inside makeCounter
+  return () => { count++; return count; }; // inner function captures `count`
+}
+
+const counter = makeCounter();      // makeCounter() has finished executing...
+counter(); // 1 — ...but count is still alive, captured by the closure
+counter(); // 2
+counter(); // 3
+```
+
+Classic bug — `var` in a loop closures over the same variable:
+
+```js
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 0); // prints 3, 3, 3 — all closures share one `i`
+}
+for (let i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 0); // prints 0, 1, 2 — `let` creates a new binding per iteration
+}
+```
+
+### JS Prototype Inheritance
 
 JS is a scripting language not required compilation such as observed in c++ and java, as a result, the JS hidden property `Prototype` much more flexible in inheritance against c++ or java parent class.
 
@@ -143,7 +249,7 @@ console.log('Student.prototype:', Student.prototype);
 console.log('Person.prototype:', Person.prototype);
 ```
 
-### Prototype Chain
+#### Prototype Chain
 
 To access a property on an object, JavaScript's engine will
 
@@ -159,7 +265,7 @@ console.log(Object.getPrototypeOf(student1) === Student.prototype); // true
 console.log(Object.getPrototypeOf(Student.prototype) === Person.prototype); // true
 ```
 
-### Common Confusion: `__proto__` vs `prototype`
+#### Common Confusion: `__proto__` vs `prototype`
 
 * `__proto__` serves as pointer for fast object location
 * `prototype` is the actual object
@@ -178,271 +284,6 @@ To execute `student1.greet();`
 4. JS follows `Student.prototype.__proto__` to `Person.prototype`.
 5. JS checks `Person.prototype` for a greet method. Found! It executes the function.
 
-## JS, TS and TSX Grammar
-
-|Feature|`.js`|`.ts`|`.tsx`|
-|:---|:---|:---|:---|
-|Language|JavaScript|TypeScript|TypeScript|
-|JSX Support|Yes (with a tool like Babel)|No|Yes|
-|Type Safety|No|Yes|Yes|
-|Common Use|Basic React components|Non-component TypeScript logic|React components in TypeScript|
-
-### Basic Data Types
-
-For JavaScript:
-
-```js
-// 1. String: For text
-let employeeName = "John Doe";
-console.log(typeof employeeName); // "string"
-
-// 2. Number: For both integers and decimals
-let salary = 95000.50;
-console.log(typeof salary); // "number"
-
-// 3. Boolean: For true/false values
-let isActive = true;
-console.log(typeof isActive); // "boolean"
-
-// 4. Undefined: A variable that is declared but not assigned a value
-let manager;
-console.log(manager); // undefined
-console.log(typeof manager); // "undefined"
-
-// 5. Null: Intentionally represents "no value"
-let directReport = null;
-console.log(directReport); // null
-console.log(typeof directReport); // "object" (This is a famous quirk in JavaScript!)
-
-// 6. BigInt: For integers larger than the max safe number
-const veryLargeNumber = 900719925474099199n; // The 'n' suffix is important
-console.log(typeof veryLargeNumber); // "bigint"
-
-// 7. Symbol: To create unique identifiers
-const idSymbol = Symbol('uniqueId');
-console.log(typeof idSymbol); // "symbol"
-```
-
-For TypeScript:
-
-```ts
-// 1. : string
-let employeeName: string = "Alice";
-
-// 2. : number
-let salary: number = 1200.50;
-
-// 3. : boolean
-let isActive: boolean = true;
-
-// 4. : null
-// To explicitly allow a variable to be null, you often use a union type.
-// This is more common than just `: null`.
-let supervisor: string | null = "Bob";
-supervisor = null; // Valid
-
-// 5. : undefined
-// A variable annotated to only be `undefined`.
-let bonus: undefined = undefined;
-
-// 6. : bigint
-const veryLargeNumber: bigint = 900719925474099199n;
-// veryLargeNumber = 123; // Error: Type 'number' is not assignable to type 'bigint'.
-
-// 7. : symbol
-const uniqueId: symbol = Symbol("id");
-```
-
-#### `null` vs `undefined`
-
-|Feature|undefined|null|
-|:---|:---|:---|
-|Meaning|A variable has not been assigned a value.|The intentional absence of a value.|
-|Assignment|Usually set automatically by the JavaScript engine.|Assigned deliberately by the user.|
-|Use Case|Indicates an uninitialized or missing state.|Indicates a cleared or empty state.|
-|`typeof` operator|`typeof undefined` returns `"undefined"`.|`typeof null` returns `"object"`.|
----
-
-For example, if to force to retrieve a return value from a non-return function, the returned value is assigned `undefined` by compiler. 
-
-```ts
-function logMessage(message) {
-  console.log(message);
-  // No "return" statement, so the function implicitly returns undefined
-}
-let result = logMessage("Hello");
-console.log(result); // Output: undefined
-```
-
-While for `null`, it is usually assigned by user with semantics.
-
-```ts
-let selectedUser = { name: "Alice" };
-// ... later, the user clicks "clear selection"
-selectedUser = null; // Deliberately setting it to have no value
-```
-
-### Assignment: Value-Copy vs Reference
-
-#### Primitives are Value-Copied
-
-Assigning Primitive Types (Copy by Value)
-Primitives are simple, immutable data types: `string`, `number`, `boolean`, `null`, `undefined`, `symbol`, `bigint`.
-
-```js
-let a: number = 10;
-let b: number = a; // The value 10 is COPIED into b
-
-console.log(a); // Output: 10
-console.log(b); // Output: 10
-
-// Now, let's change b
-b = 20;
-
-console.log(a); // Output: 10 (a is completely unaffected)
-console.log(b); // Output: 20
-```
-
-#### Reference Types
-
-Reference types are complex data structures like objects and arrays.
-
-```js
-// An object is a reference type
-let postA = {
-  title: "My First Post",
-  likes: 100
-};
-
-// This does NOT create a new object.
-// It copies the MEMORY ADDRESS of postA into postB.
-let postB = postA;
-
-console.log(postA.likes); // Output: 100
-console.log(postB.likes); // Output: 100
-
-// Now, let's modify the object using postB
-postB.likes = 150;
-
-// The change is reflected in BOTH variables because they point to the SAME object.
-console.log(postA.likes); // Output: 150 (postA was also changed!)
-console.log(postB.likes); // Output: 150
-```
-
-### Variable Scope: `var` vs `let`
-
-Variables declared with `var` have function scope, while `let` variables are of block scope.
-
-`var i` outlives the `for (var i = 0; i < 3; i++) {...}` scope that the `i` is accessible after the `for` loop has finished.
-
-```js
-function testVarScope() {
-  // `i` is accessible here, even before the loop, but its value is `undefined`.
-  console.log("Before loop:", i); // Output: undefined
-
-  for (var i = 0; i < 3; i++) {
-    console.log("Inside loop:", i); // Output: 0, 1, 2
-  }
-
-  // `i` has "leaked" out of the loop and is still accessible here.
-  console.log("After loop:", i); // Output: 3
-}
-```
-
-Once the `for` loop has finished, the block scope of `i` is destroyed.
-
-```js
-function testLetScope() {
-  // console.log(i); // This would cause a ReferenceError. `i` is not defined here.
-
-  for (let i = 0; i < 3; i++) {
-    console.log("Inside loop:", i); // Output: 0, 1, 2
-  }
-
-  // console.log(i); // This causes a ReferenceError because `i` does not exist here.
-}
-```
-
-### Some Novel JS Syntax
-
-#### Expansion `...`
-
-It has two use scenarios:
-
-* Collection Merge
-
-```js
-const firstHalf: number[] = [1, 2, 3];
-const secondHalf: number[] = [4, 5, 6];
-
-// Using spread to combine them
-const combined: number[] = [...firstHalf, ...secondHalf];
-console.log(combined); // Output: [1, 2, 3, 4, 5, 6]
-```
-
-* Collection Reset
-
-```js
-// The '...numbers' syntax gathers all arguments passed to the function into an array called 'numbers'.
-// TypeScript requires you to type the array, e.g., number[].
-function sumAll(...numbers: number[]): number {
-  return numbers.reduce((total, current) => total + current, 0);
-}
-
-console.log(sumAll(1, 2));          // Output: 3
-console.log(sumAll(10, 20, 30));    // Output: 60
-console.log(sumAll(5));             // Output: 5
-console.log(sumAll());              // Output: 0
-```
-
-### Some Novel TS Syntax
-
-#### Interface
-
-```ts
-interface Person {
-  name: string;
-  age: number;
-  isStudent?: boolean; // Optional property
-}
-
-function greet(person: Person) {
-  return `Hello, ${person.name}!`;
-}
-```
-
-#### Optional Chaining Operator: `?.`
-
-`?.` returns `undefined` if element not existed, instead of throwing an error.
-
-```ts
-const users = [
-  { name: "Alice" },
-  { name: "Bob" }
-];
-
-// Safely access the name of the first user
-const firstName = users?.[0]?.name; // "Alice"
-
-// Safely attempt to access an element that doesn't exist
-const nonExistentName = users?.[5]?.name; // undefined
-```
-
-#### The Nullish Coalescing Operator (`??`)
-
-`??` returns the right-hand side operand if the left-hand side operand is `null` or `undefined`.
-Otherwise, it returns the left-hand side operand.
-
-The `||` operator treats any "falsy" value (like `0`, an empty string `""`, or `false`) as a trigger to use the default value. The `??` operator is more precise, only falling back to the default for `null` or `undefined`.
-
-
-```ts
-let volume = localStorage.getItem('volume'); // This could be "0"
-
-let a = volume || 0.5; // If volume is "0", `a` becomes 0.5 (undesirable)
-let b = volume ?? 0.5; // If volume is "0", `b` remains "0"
-```
-
 ## Execution Env: Node JS vs Browser Chrome
 
 * Browser: The browser provides a **client-side execution environment**
@@ -458,19 +299,30 @@ Allow developers to use JavaScript to build back-end services, APIs, command-lin
 Node.js does not have a DOM because it doesn't render HTML pages.
 Consequently, user cannot access objects like `document` or `window` in a Node.js environment.
 
-Node.js has full access to the system's resources.
+### Node.js Backend vs Frontend Differences
 
-### Node JS
+||Node.js Backend|Browser/Frontend|
+|:---|:---|:---|
+|Module System|CommonJS (`require`, `module.exports`)|ES modules (`import`, `export`) or bundled CommonJS|
+|File System|`fs` module|No file system access|
+|Network|`http`, `https`, `net` modules|`fetch`, `WebSocket`|
+|Process|process object, environment variables|No process access|
+|Globals|`global`, `__dirname`, `__filename`|`window`, `document`, `navigator`|
+|Threading|Worker threads|Web Workers (limited)|
+|OS Access|Full OS access (files, processes)|Sandboxed, very limited|
+|Package Manager|`npm`, `yarn`|Bundling tools needed, e.g., `Webpack`, `Vite`|
+---
 
-* npx vs npm
+where
 
-NPM is a package manager used to install, delete, and update Javascript packages on your machine.
-NPX is a package executer, and it is used to execute javascript packages directly, without installing them.
+* Node.js Backend (`http`, `https`, `net`) can create server
+* Browser Frontend (`fetch`, `WebSocket`) Can only request, not create servers; Sandboxed by browser (CORS restrictions)
 
-For example, `npx`
+## JS, TS and TSX Grammar Comparison
 
-## ES5 vs ES6
-
-## Miscellaneous JS Knowledge
-
-* canvas vs svg
+|Feature|`.js`|`.ts`|`.tsx`|
+|:---|:---|:---|:---|
+|Language|JavaScript|TypeScript|TypeScript|
+|JSX Support|Yes (with a tool like Babel)|No|Yes|
+|Type Safety|No|Yes|Yes|
+|Common Use|Basic React components|Non-component TypeScript logic|React components in TypeScript|
