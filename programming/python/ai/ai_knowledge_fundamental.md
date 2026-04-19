@@ -130,6 +130,27 @@ Since all commas in a CSV are separated by the same field-width $\Delta$, every 
 In summary, the attention formula $\text{softmax}\left(\frac{QK^{\top}}{\tau \cdot \sqrt{d_k}}\right)V$ captures **only token relevance information** and lacks inherent numeric computation capability.
 Consequently, tasks requiring precise numerical operations—such as arithmetic calculations—are fundamentally susceptible to hallucination.
 
+### Vision Language (VL)
+
+Vision Language Models (VLMs) extend the capabilities of LLMs into the visual domain, enabling joint reasoning across both images and text. 
+
+#### Vision Tokens and ViT
+Before connecting to an LLM, an image must be converted into a sequence of discrete "vision tokens," analogous to text tokens. The Vision Transformer (ViT) architecture achieves this by:
+1. **Patching**: An input image $I \in \mathbb{R}^{H \times W \times C}$ is split into a grid of non-overlapping patches, creating a sequence of length $N = HW/P^2$, where $P$ is the patch size.
+2. **Linear Projection**: Each patch is flattened and linearly projected into a continuous vector space.
+3. **Encoding**: These sequences are added with position embeddings and processed by a Transformer encoder to produce dense visual embeddings $Z_v \in \mathbb{R}^{N \times d_v}$. Here, each of the $N$ vectors acts as a "vision token," inherently representing a specific spatial region of the image.
+
+#### Cross-Modal Alignment
+For the LLM to understand these vision tokens, they must share a semantic geometry with text. This linking is achieved via:
+1. **Contrastive Pre-training (e.g., CLIP)**: A vision encoder and a text encoder are trained simultaneously on massive image-caption pairs to maximize the cosine similarity of matching pairs. This enforces that the visual token for a "dog" exists in the same latent region as the word "dog".
+2. **Cross-Modal Projection**: A projector (e.g., a linear weight matrix $W_p$ or an MLP) structurally maps the dimension of vision embeddings $Z_v$ precisely into the LLM's textual embedding space $d_t$:
+
+$$
+\tilde{Z}_v = Z_v W_p \in \mathbb{R}^{N \times d_t}
+$$
+
+These projected visual tokens are logically concatenated with textual tokens $Z_t$ to form a unified, multimodal context sequence $X = [\tilde{Z}_v ; Z_t]$. This combined sequence is then natively processed by the standard LLM self-attention mechanism.
+
 ## Prompts & Context
 
 LLM inputs can be broadly considered as prompts.
@@ -675,6 +696,63 @@ Fine-tuning takes a pre-trained base model and trains it further on a specific d
     $$
     Only the small matrices $A$ and $B$ are trained, approximating the ideal weight update $\Delta W = BA$. It drastically reduces the number of trainable parameters, enabling fine-tuning of large models on consumer GPUs with minimal performance trade-offs.
   - **Prefix Tuning / Prompt Tuning**: Another PEFT approach where a small set of trainable, continuous "prefix" tokens are prepended to the input or hidden layers. Only these prefix embeddings are optimized during training while the base model weights remain completely frozen.
+
+### Alignment
+
+Alignment is the process of steering a pre-trained base model to be **helpful, harmless, and honest (HHH)**. A raw base model outputs statistically likely token sequences—it is not intrinsically a conversational assistant or a safe system. Alignment bridges that gap.
+
+#### Stage 1 — Supervised Fine-Tuning (SFT)
+
+A curated dataset of **(prompt, ideal response)** pairs is assembled by human annotators. The model is fine-tuned on this dataset with standard cross-entropy loss, teaching it the target format (conversational turns, instruction-following, refusals, etc.).
+
+$$
+\mathcal{L}_{\text{SFT}} = -\sum_{t} \log p_\theta(y_t \mid x, y_{<t})
+$$
+
+where $x$ is the prompt and $y$ is the ideal annotated response.
+
+#### Stage 2 — Reward Modeling (RM)
+
+Human raters rank multiple model responses to the same prompt. A separate **reward model** $r_\phi$ is trained to predict these human preferences from (prompt, response) pairs:
+
+$$
+\mathcal{L}_{\text{RM}} = -\mathbb{E}_{(x,y_w,y_l)}\left[\log\sigma\!\left(r_\phi(x,y_w) - r_\phi(x,y_l)\right)\right]
+$$
+
+where $y_w$ is the preferred ("winner") response and $y_l$ the dispreferred ("loser") response.
+
+#### Stage 3 — Reinforcement Learning from Human Feedback (RLHF)
+
+The SFT model is further optimized to maximize the reward signal from $r_\phi$ using **PPO (Proximal Policy Optimization)**, while a KL-divergence penalty prevents the policy from straying too far from the SFT baseline:
+
+$$
+\mathcal{L}_{\text{RLHF}} = \mathbb{E}_x\!\left[r_\phi(x, y) - \beta \cdot D_{\text{KL}}\!\left(\pi_\theta(\cdot\mid x) \,\|\, \pi_{\text{SFT}}(\cdot\mid x)\right)\right]
+$$
+
+The coefficient $\beta$ controls the **safety–capability trade-off**: higher $\beta$ keeps the model conservative; lower $\beta$ allows more reward-seeking behavior.
+
+#### Stage 3 (Alternative) — Direct Preference Optimization (DPO)
+
+DPO (Rafailov et al., 2023) eliminates the separate RM and RL loop. It directly optimizes the policy on preference pairs using a closed-form reparameterization, making training simpler and more stable:
+
+$$
+\mathcal{L}_{\text{DPO}} = -\mathbb{E}_{(x,y_w,y_l)}\!\left[\log\sigma\!\left(\beta\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right]
+$$
+
+DPO is now the dominant alignment recipe (used in LLaMA-3, Mistral, Gemma, etc.) due to its simplicity.
+
+---
+
+### Model Name Suffixes: How Variants Are Fine-Tuned
+
+Base model weights are the same starting point; suffixes indicate **which fine-tuning recipe** was applied on top.
+
+| Suffix | Training Recipe | Behavior |
+|:---|:---|:---|
+| *(none / base)* | Pre-training only | Raw next-token completion; no instruction-following |
+| **-instruct** | SFT + RLHF/DPO on instruction datasets | Follows natural language instructions, general purpose |
+| **-chat** | SFT + RLHF/DPO on multi-turn conversation data | Optimized for dialogue turns; maintains context across exchanges |
+| **-code** | Continued pre-training on code corpora, then SFT on code instruction pairs | Stronger on code generation, debugging, and technical reasoning |
 
 ### Knowledge Distillation
 

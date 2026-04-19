@@ -195,3 +195,72 @@ function ResponsiveGrid() {
 
 
 ## StrictMode in React
+
+`React.StrictMode` is a development-only wrapper component that activates additional checks and warnings for its descendant tree. It has **no effect in production**.
+
+Enable it by wrapping your application (or a subtree) in `<React.StrictMode>`:
+
+```jsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+```
+
+### What StrictMode Does
+
+| Behavior | Purpose |
+|---|---|
+| **Double-invokes render functions** | Detects side effects in `render`, function component bodies, `useState`/`useMemo`/`useReducer` initializers |
+| **Double-invokes effects** | Simulates mount → unmount → remount to surface missing cleanup in `useEffect` |
+| **Warns on deprecated APIs** | Flags legacy lifecycle methods (e.g., `componentWillMount`) and other outdated patterns |
+| **Warns on `findDOMNode`** | Discourages direct DOM node access via refs instead |
+
+### Double-Invocation of Effects (React 18+)
+
+In React 18, StrictMode deliberately runs each `useEffect` twice in development:
+
+1. Mount → run effect
+2. Unmount → run cleanup
+3. Remount → run effect again
+
+This exposes components that fail to clean up properly. A well-written effect must always pair its setup with a cleanup:
+
+```jsx
+useEffect(() => {
+  const subscription = subscribe(resource);
+  return () => subscription.unsubscribe(); // cleanup required
+}, [resource]);
+```
+
+If the cleanup is missing or incorrect, the double-invocation will reveal bugs such as duplicate subscriptions or stale event listeners.
+
+### `useRef` and StrictMode
+
+`useRef` holds a mutable value in `.current` that **does not trigger re-renders** when mutated. Because it is mutable and persists across renders, its value is not reset between StrictMode's double-invocations — meaning ref-based side effects (e.g., click counters) may accumulate unexpected extra calls in development:
+
+```jsx
+function ClickCounter() {
+  const clickCount = useRef(0);       // mutable, survives re-renders
+  const [, forceRender] = useState(0);
+
+  return (
+    <>
+      <button onClick={() => { clickCount.current++; }}>
+        Click me
+      </button>
+      <button onClick={() => forceRender(n => n + 1)}>
+        Force Re-Render
+      </button>
+      <p>Button clicked: {clickCount.current} times</p>
+    </>
+  );
+}
+```
+
+The displayed count only updates on re-render (not on every click), because mutating `.current` does not schedule a render. In StrictMode, render is invoked twice, so render-time reads of `.current` may appear doubled in development — but this has no effect in production.
+

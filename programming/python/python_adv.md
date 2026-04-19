@@ -469,3 +469,36 @@ with postgresql_connection('mydatabase', 'myuser', 'mypassword') as conn:
         result = cursor.fetchall()
         print(result)
 ```
+
+### Event Loop
+
+The event loop is the core machinery of `asyncio`. It coordinates asynchronous tasks, handles network I/O, and manages subprocesses. Python's `asyncio` provides two primary event loop implementations, mapping to different underlying OS systems.
+
+#### `SelectorEventLoop`
+
+*   **Platform**: Default on **UNIX-like** operating systems (Linux, macOS).
+*   **Mechanism**: Built on the `selectors` module. It uses OS-level I/O multiplexing primitives such as `epoll` (Linux) or `kqueue` (macOS/BSD) to monitor multiple file descriptors to see if I/O is possible. 
+*   **Limitations (Windows)**: On Windows, it relies on the legacy `select()` API, which only supports network sockets. It cannot handle asynchronous file I/O, named pipes, or subprocess execution asynchronously.
+
+#### `ProactorEventLoop`
+
+*   **Platform**: Default on **Windows** (starting from Python 3.8).
+*   **Mechanism**: Built exclusively for Windows using **I/O Completion Ports (IOCP)**. Instead of polling for readiness (like multiplexing), IOCP utilizes true asynchronous I/O, where the OS notifies the application only when operations complete.
+*   **Advantages**: Capable of handling asynchronous reads/writes across network sockets, named pipes, subprocesses, and file I/O simultaneously on Windows systems.
+
+#### Explicit Policy Configuration
+
+While the standard library auto-selects the optimal loop logic depending on the OS, developers can manually establish the event loop policy:
+
+```python
+import asyncio
+import sys
+
+# Explicit loop policy definition based on OS
+if sys.platform == 'win32':
+    # Default on Windows >= 3.8
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+else:
+    # Default on UNIX (SelectorEventLoop)
+    asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
+```
