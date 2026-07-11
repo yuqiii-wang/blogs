@@ -27,6 +27,35 @@ Niceness is about process scheduling priority that,
 if a process is very nice (high nice values), it will be "polite" and allow other processes to take precedence and use more CPU time (in other words, it will have a low priority). 
 If it is not nice, it will try to get as much CPU time as possible for itself (so it will have a high priority).
 
+### By `ps`
+
+`ps -C java -o pid,ppid,comm,cmd,%mem,rss,vsz --sort=-rss`
+
+* `pid`: The Process ID. The unique number assigned to the process by the operating system.
+* `ppid`: The Parent Process ID. The ID of the process that started this Java process.
+* `comm`: The Command name. This will simply show "java".
+* `cmd`: The Full command line. This shows the entire command used to start the Java application, including arguments, file paths, and memory settings (like -Xmx).
+* `%mem`: The percentage of physical memory (RAM) the process is using.
+* `rss`: Resident Set Size. This is the portion of the process's memory that is held in RAM (measured in kilobytes). This is the most accurate way to see how much **physical memory** a Java process is actually consuming.
+* `vsz`: Virtual Size. The total amount of virtual memory the process has access to. This is often misleadingly high in Java because it includes memory reserved (but not necessarily used) and mapped files.
+
+### By `free -h`
+
+Example Output:
+
+```txt
+               total        used        free      shared  buff/cache   available
+Mem:            23Gi       5.6Gi        16Gi        84Mi       1.7Gi        17Gi
+Swap:          7.0Gi          0B       7.0Gi
+```
+
+where
+
+* `total`: total physical RAM
+* `buff/cache`: Linux uses "unused" RAM to store data it thinks app might need again soon. This is Buff/Cache, and it is a performance feature.
+* `shared`: Memory used mostly by tmpfs (temporary filesystems)
+* `available`: free + buff/cache; An estimate of how much memory is actually available to start new applications without swapping
+
 ### By `top`
 
 For `top`, press `F` button on keyboard to go the config page; 

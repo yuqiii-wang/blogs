@@ -194,7 +194,7 @@ function ResponsiveGrid() {
 ```
 
 
-## StrictMode in React
+## Strict Mode in React
 
 `React.StrictMode` is a development-only wrapper component that activates additional checks and warnings for its descendant tree. It has **no effect in production**.
 

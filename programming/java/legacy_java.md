@@ -1,5 +1,7 @@
 # Legacy Java
 
+Legacy Java tech and the underlying.
+
 ## WebSphere
 
 ## IBM MQ and `.bindings`
@@ -90,3 +92,52 @@ In the `.bindings` format, the entries represent serialized `javax.naming.Refere
 * **`Content`**: Specifies the actual value assigned to that parameter. For example, the `Content` for a `PORT` type would be `1414`, and for a `CHANNEL` type, it would be `SYSTEM.DEF.SVRCONN`.
 
 Together, `Type` and `Content` define the key-value pairs needed by the MQ JMS provider to instantiate the target MQ objects when the application performs a JNDI lookup.
+
+## `jakarta.json.Json`
+
+`jakarta.json.Json` is the entry point of the Jakarta JSON Processing API (JSON-P). It provides a small, standard set of utilities for working with JSON in Java, such as:
+
+- `Json.createReader(...)` and `Json.createWriter(...)`
+- `Json.createObjectBuilder()` and `Json.createArrayBuilder()`
+- `Json.createReaderFactory(...)` / `Json.createWriterFactory(...)`
+
+In practice, this means your code can read, write, and manipulate JSON using the same API regardless of which underlying implementation is plugged in.
+
+### What is Parsson?
+
+Parsson is one implementation of the Jakarta JSON Processing API. It is an alternative runtime library that provides the actual parsing and generation logic behind the `jakarta.json` API.
+
+So the relationship is:
+
+- `jakarta.json` = the standard API contract
+- Parsson = one concrete implementation of that contract
+
+### Why switching the dependency can keep code unchanged
+
+If your code only calls the `jakarta.json` API, then changing the implementation dependency from one provider to another usually does not require code changes. The reason is that the code depends on the public API surface, not on the internal implementation details.
+
+For example, code like this can remain almost identical:
+
+```java
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+
+JsonObject obj = Json.createObjectBuilder()
+        .add("name", "Alice")
+        .add("age", 30)
+        .build();
+```
+
+The only thing that changes when you swap implementations is which JAR provides the behavior behind that API. This is similar to using a standard JDBC interface while changing the database driver underneath.
+
+### Common alternatives
+
+Other implementations or libraries that can be used for JSON work include:
+
+- Jackson (`com.fasterxml.jackson`)
+- Gson (`com.google.code.gson`)
+- org.json
+
+Among these, Parsson is notable because it is a direct implementation of the Jakarta JSON Processing API, so it is often the most drop-in replacement for code written against `jakarta.json.Json`.
+
+

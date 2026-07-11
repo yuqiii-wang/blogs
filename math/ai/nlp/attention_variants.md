@@ -155,6 +155,34 @@ with torch.no_grad():
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 ```
 
+### Flash Attention `flash-attn` Implementation
+
+By Jun 2026, the supports are
+
+|NVIDIA Architecture|Gen|Compute Capability|flash-attn 2.x supports|PyTorch SDPA supports|
+|:---|:---|:---|:---|:---|
+|Ampere (A100, RTX 30 series)|2020|sm_80|✅|✅|
+|Ada Lovelace (RTX 40 series)|2022|sm_89|✅|✅|
+|Hopper (H100)|2022|sm_90|✅|✅|
+|Blackwell (RTX 5090)|2025|sm_120|❌ (no kernel in flash-attn 2.8.x)|✅ (newer PyTorch + cu130 already track this)|
+
+where `sm_*` is the Nvidia streaming multiprocessor version.
+
+
+### Native PyTorch 2.0 Attention (SPDA)
+
+`torch.nn.functional.scaled_dot_product_attention` (SPDA) is PyTorch 2.0 version attention implementations.
+It has wide support across diff hardware devices.
+
+SPDA is an orchestrator (not an algo) that
+
+|Variant|Trigger Conditions|Description|
+|:---|:---|:---|
+|FlashAttention kernel; From the flash-attn package / PyTorch's own implementation.|For Ampere+ GPUs using FP16/BF16, without custom masks (common cases like is_causal).|Fastest option — the core kernel idea behind flash-attn-2.|
+|FlashAttention-3 kernel|Newer PyTorch kernel optimized for Hopper/Blackwell and modern dtypes (e.g., FP8).|Targeted optimizations for the latest GPUs such as H100 and RTX 5090.|
+|Memory-efficient attention kernel|For older GPUs or other dtypes.|An alternative tiling implementation (from xformers) that also achieves O(N) memory usage.|
+|Math kernel (naive matmul)|Fallback for all other cases|Equivalent to the unoptimized eager implementation.|
+
 ## Paged Attention
 
 Paged Attention is used to host LLMs for high throughput by flexible sharing of key value (KV) cache within and across requests to further reduce memory usage.

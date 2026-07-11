@@ -321,3 +321,23 @@ Check the driver availability by `nvidia-smi`.
 
 CUDA toolkit container https://github.com/NVIDIA/nvidia-container-toolkit is not a necessity to install in a docker to run CUDA.
 However, advanced features such as `--gpus all` flag needs CUDA toolkit container.
+
+## Common Causes Why Docker Engine Dies
+
+Docker Engine may stop unexpectedly due to host resource pressure, daemon crashes, storage corruption, or misconfigured runtime and networking settings.
+
+1. Host resource pressure (memory/CPU/disk)
+    When the host runs out of critical resources, Linux may kill `dockerd` or related processes.
+    Example: A high-memory workload triggers OOM killer, and `journalctl -u docker` shows Docker daemon was killed.
+
+2. Docker daemon crash or bug
+    The daemon itself can crash because of engine bugs, incompatible plugins, or unstable upgrades.
+    Example: After upgrading Docker, `docker ps` returns `Cannot connect to the Docker daemon` until the service is restarted or rolled back.
+
+3. Storage driver or filesystem corruption
+    Corruption in `overlay2` metadata or disk filesystem errors can prevent Docker from loading container state.
+    Example: Docker fails to start with errors under `/var/lib/docker/overlay2/...`, and `dmesg` reports filesystem I/O issues.
+
+4. Misconfigured runtime, networking, or permissions
+    Invalid daemon settings can block startup or cause repeated service exits.
+    Example: A malformed `/etc/docker/daemon.json` (invalid JSON or bad `data-root`) makes `systemctl status docker` show startup failure.

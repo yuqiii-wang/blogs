@@ -227,3 +227,44 @@ Spring Boot by this priority order to route requests:
 
 Modern UI is usually Single Page Application (SPA) that all user interactions are done within the one page by "reactive" UI components.
 As a result, Spring Boot just need ONE path to host UI/static contents.
+
+## Packaging Differences: Spring Boot Maven Plugin vs Maven Assembly Plugin
+
+When packaging a Spring Boot application, there is a fundamental difference between using the Spring Boot Maven Plugin (the standard way) and the Maven Assembly Plugin (or Maven Shade Plugin).
+
+Spring Boot creates a *Nested JAR*, while the Assembly plugin creates a *Flat Uber JAR*.
+
+### Directory Structure (BOOT-INF vs. Flat Structure)
+
+#### The Spring Boot Way (Nested JAR)
+
+`BOOT-INF` is not a standard Java directory. It is a custom directory structure invented by the Spring Boot team specifically to solve the problem of packaging hundreds of dependencies into a single runnable JAR file without breaking them.
+
+* Application's compiled code goes into `BOOT-INF/classes/`.
+* Dependencies (e.g., Tomcat, Hibernate, Jackson jars) go into `BOOT-INF/lib/`.
+
+This safely prevents any file name collisions between different dependencies.
+
+#### The Assembly Plugin Way (Flat Uber JAR):
+
+`META-INF` is a standard Java directory that has existed since Java 1.2. Its name stands for "Meta-Information".
+
+For `maven-assembly-plugin` with the `jar-with-dependencies` descriptor, it extracts the `.class` files from every single dependency and repacks them all into one giant, **single-level JAR file**.
+
+* There is no `BOOT-INF` directory. Every class from every library sits in the same root directory structure.
+
+### The Main Class & Manifest (`META-INF/MANIFEST.MF`)
+
+#### The Spring Boot Way
+
+When Spring Boot builds a JAR, it injects its own custom classloader into the root of the JAR. It modifies your `META-INF/MANIFEST.MF` like this:
+
+* Main-Class: `org.springframework.boot.loader.JarLauncher` (This is the class Java actually runs first. It knows how to read the nested JARs inside `BOOT-INF/lib/`).
+* Start-Class: `com.yourcompany.YourActualMainClass` (The JarLauncher looks at this property to know where your actual application starts).
+
+#### The Assembly Plugin Way
+
+Because the Assembly plugin creates a flat JAR, Java's default classloader can read it just fine.
+
+* Main-Class: `com.yourcompany.YourActualMainClass` (User configure this directly in the plugin; Java boots user class immediately).
+* There is no custom JarLauncher or Start-Class.

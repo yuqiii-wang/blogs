@@ -134,6 +134,180 @@ celery -A myapp worker -Q customer.tenant-a51b-4f9c
 
 ---
 
+## Celery Prefork Spawn Model
+
+```txt
+celery worker master process
+├── imports celery related pkgs
+│
+└─── fork() × concurrency=4 → child processes (task slots)
+     each child:
+     ├── inherits master's memory via Copy-on-Write (CoW)
+     └── runs asyncio.run(_run_stream_async(...)) per task
+```
+
+CoW means: the OS shares memory pages between master and children until a write occurs. In practice each child touches very little extra memory before its first task — mainly its own asyncio event loop and stack. 
+
+Celery master: ~120–150 MB (Python + all imports)
+Each child via CoW: ~5–20 MB incremental per child (own heap, stack, event loop, open connections)
+At concurrency=4, 8 workers → 32 children → ~700–800 MB total Celery footprint
+
+---
+
+## FastAPI + Celery Deployment: Workers vs Concurrency vs Master
+
+### Terminology Disambiguation
+
+| Term | What it actually is | Role |
+|---|---|---|
+| **Worker** | A single OS process you launch with `celery worker` | Supervisor / master — never runs user tasks |
+| **Concurrency** | The N child processes each worker forks | Actual task executors |
+| **Master process** | Synonym for the worker supervisor above | Orchestrates dispatch, heartbeats, and result collection |
+
+> A "worker" in Celery docs is the **master** — it only dispatches and monitors. A "concurrency slot" (child process) is what actually calls your Python function.
+
+### The 4 × 8 = 32 Layout
+
+```bash
+# You run 4 separate worker commands (e.g., via Docker, systemd, or Supervisor)
+celery -A myapp worker --hostname=w1@%h --concurrency=8
+celery -A myapp worker --hostname=w2@%h --concurrency=8
+celery -A myapp worker --hostname=w3@%h --concurrency=8
+celery -A myapp worker --hostname=w4@%h --concurrency=8
+```
+
+```txt
+OS process tree
+│
+├── celery worker w1 (master, PID 1001)  ← connects to Redis, no task execution
+│    ├── child-1  (PID 1010)  ← executes tasks
+│    ├── child-2  (PID 1011)
+│    ├── ...
+│    └── child-8  (PID 1017)
+│
+├── celery worker w2 (master, PID 1002)
+│    ├── child-1  (PID 1020)
+│    ├── ...
+│    └── child-8  (PID 1027)
+│
+├── celery worker w3 (master, PID 1003)
+│    └── 8 children ...
+│
+└── celery worker w4 (master, PID 1004)
+     └── 8 children ...
+
+Total task slots: 4 × 8 = 32 concurrent tasks
+```
+
+Each of the 4 master processes holds **one independent broker connection** to Redis and manages its own pool of 8 children via pipes.
+
+### What Each Layer Does
+
+```
+FastAPI request
+  │
+  ▼
+task.delay() / apply_async()
+  │   [serializes task to JSON]
+  │
+  ▼
+Redis (broker)
+  └── Stream / List: "celery" queue
+         │
+         │  (4 masters compete for messages, round-robin)
+         ▼
+  w1-master fetches message (XREADGROUP / BLPOP)
+         │
+         │  [writes task bytes to child's inbound pipe]
+         ▼
+  w1-child-3  ←── actually calls your_task_function(args)
+         │
+         │  [writes result tuple back through result pipe]
+         ▼
+  w1-master  ←── receives result, issues XACK to Redis
+         │
+         ▼
+  Result Backend (Redis DB 1)  ←── stores return value / state
+         │
+         ▼
+FastAPI (optional): task.get() or AsyncResult polling
+```
+
+### Why Split Into 4 Workers Instead of 1 Worker with 32 Concurrency?
+
+**Single worker with `--concurrency=32`:**
+
+```txt
+w1-master (PID 1001)
+└── 32 children (PID 1010 … 1041)
+```
+
+This is technically valid, but has real operational drawbacks:
+
+| Concern | 4 × 8 workers | 1 × 32 worker |
+|---|---|---|
+| **Fault isolation** | One master crash loses 8 slots; others keep running | One master crash loses all 32 slots |
+| **Graceful restart** | Rolling restart: drain one worker at a time, 24/32 slots remain active | Full drain required — zero capacity during restart |
+| **Memory layout** | Spread across OS scheduler more evenly | All 32 children share one parent's CoW pages — minor memory concentration risk |
+| **CPU pinning** | Each master can be pinned to a NUMA node or CPU socket | Harder to isolate to a socket |
+| **Log clarity** | Separate log streams per worker hostname | All 32 children log under one worker name |
+
+In practice on Kubernetes or Docker, each `celery worker` is a separate **container replica**, so the 4 × 8 split maps naturally to `replicas: 4` with `--concurrency=8` per container.
+
+### Memory Budget for 4 × 8 = 32
+
+```
+4 masters × ~130 MB each                    =  ~520 MB
+32 children × ~15 MB CoW increment each     =  ~480 MB
+─────────────────────────────────────────────────────
+Total Celery footprint                       ≈ ~1 GB
+FastAPI (uvicorn, 4 workers typical)         ≈  ~300–500 MB
+Redis (broker + backend, single instance)    ≈  ~50–200 MB
+```
+
+> CoW savings disappear gradually as children process tasks and diverge their heap. After sustained load, plan for 40–80 MB per child rather than 15 MB.
+
+### Prefetch & Back-Pressure per Worker
+
+Each master fetches messages from the broker in batches before dispatching to its children. This is controlled by `worker_prefetch_multiplier`:
+
+```
+messages prefetched per master = concurrency × worker_prefetch_multiplier
+                               = 8 × 1  = 8   (recommended for long tasks)
+                               = 8 × 4  = 32  (default — can cause starvation)
+```
+
+With 4 masters and `multiplier=1`, up to **32 messages** are in-flight at the broker level (held in the PEL, unacked) across the entire fleet — matching the true parallelism of 32 task slots. With the default `multiplier=4`, 128 messages can be prefetched but only 32 are actually executing, stalling the other 96 in memory.
+
+### FastAPI ↔ Celery Integration Pattern
+
+```python
+# main.py (FastAPI)
+from fastapi import FastAPI
+from celery.result import AsyncResult
+from tasks import process_data          # your @app.task function
+
+app = FastAPI()
+
+@app.post("/process")
+async def enqueue(payload: dict):
+    # Non-blocking: just serializes + pushes to Redis
+    task = process_data.delay(payload)
+    return {"task_id": task.id}
+
+@app.get("/result/{task_id}")
+async def poll_result(task_id: str):
+    result = AsyncResult(task_id)
+    return {
+        "state":  result.state,         # PENDING / STARTED / SUCCESS / FAILURE
+        "result": result.result if result.ready() else None,
+    }
+```
+
+FastAPI itself is **completely decoupled** from the worker pool. It only writes to the broker and reads from the result backend. The 4 × 8 = 32 worker fleet is a separate set of OS processes that may run on different machines entirely.
+
+---
+
 ## Underlying Implementation
 
 ### Task Serialization

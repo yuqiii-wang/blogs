@@ -2,10 +2,23 @@
 
 The IOS Data Communication Mode
 
-<div style="display: flex; justify-content: center;">
-      <img src="imgs/osi-model-7-layers-1.png" width="30%" height="70%" alt="osi-model-7-layers-1" />
-</div>
-</br>
+```mermaid
+flowchart TD
+    L7["7. Application<br/>(End User layer: HTTP, FTP, IRC, SSH, DNS)"]
+    L6["6. Presentation<br/>(Syntax layer: SSL, SSH, IMAP, FTP, MPEG, JPEG)"]
+    L5["5. Session<br/>(Synch & send to port: API's, Sockets, WinSock)"]
+    L4["4. Transport<br/>(End-to-end connections: TCP, UDP)"]
+    L3["3. Network<br/>(Packets: IP, ICMP, IPSec, IGMP)"]
+    L2["2. Data Link<br/>(Frames: Ethernet, PPP, Switch, Bridge)"]
+    L1["1. Physical<br/>(Physical structure: Coax, Fiber, Wireless, Hubs, Repeaters)"]
+
+    L7 --- L6
+    L6 --- L5
+    L5 --- L4
+    L4 --- L3
+    L3 --- L2
+    L2 --- L1
+```
 
 * Frame: datalink layer
 * Cell: datalink layer
@@ -108,6 +121,62 @@ Flow control is the process of managing the rate of data transmission between tw
 * For TCP, server's socket decreases kernel window size when receiving data exceeds server processing capacity, and rejects incoming TCP Datagrams when window size is zero.
 
 
+## Keep-Alive Mechanisms
+
+"Keep-alive" generally refers to protocols that maintain active networking connections between nodes. In server environments, it reduces the overhead of repeatedly establishing and tearing down pathways. It operates predominantly at two OSI layers: Application (HTTP) and Transport (TCP).
+
+### HTTP Keep-Alive (Application Layer)
+
+**Without persistent connections, every HTTP request necessitates a new TCP 3-way handshake** (costing $1.5$ RTT) plus a TLS handshake. HTTP Keep-Alive maintains the underlying TCP connection for subsequent HTTP requests.
+
+*   **Protocol Support**: It is the default behavior in HTTP/1.1 (`Connection: keep-alive`).
+*   **Performance Impact**: Minimizes latency per request and conserves server CPU cycles avoiding constant TCP/TLS setups.
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    
+    Note over Client,Server: Without Keep-Alive
+    Client->>Server: TCP SYN
+    Server->>Client: TCP SYN-ACK
+    Client->>Server: TCP ACK + HTTP GET
+    Server-->>Client: HTTP 200 OK
+    Server->>Client: TCP FIN (Close)
+    
+    Note over Client,Server: With Keep-Alive
+    Client->>Server: TCP SYN
+    Server->>Client: TCP SYN-ACK
+    Client->>Server: TCP ACK + HTTP GET 1
+    Server-->>Client: HTTP 200 OK 1
+    Client->>Server: HTTP GET 2 (Reuses Socket)
+    Server-->>Client: HTTP 200 OK 2
+```
+
+### TCP Keep-Alive (Transport Layer)
+
+TCP Keep-Alive is an OS-level mechanism where sockets with idle connections periodically dispatch probe packets (ACKs with no data payload) to verify peer reachability.
+
+*   **Dead Peer Detection**: Identifies and reclaims resources if the client machine crashed or rebooted silently without transmitting a `FIN` packet.
+*   **NAT/Firewall State Preservation**: Network middleboxes aggressively prune idle connection states mapped in NAT tables. Intermittent probes reset the expiration timers on these nodes.
+*   **Tuning**: Handled via OS kernel parameters (e.g., in Linux: `tcp_keepalive_time`, `tcp_keepalive_intvl`, `tcp_keepalive_probes`).
+
+### Configuration Implications in Server Software
+
+Proxy and web servers (e.g., Nginx, Squid) must carefully parameterize these settings to optimize concurrent loads versus resource bounding:
+
+*   **Resource Exhaustion**: Extremely high timeout thresholds cause thousands of inactive connections to hold volatile memory and file descriptors, leading to "Too many open files" errors.
+*   **Nginx Configuration Mapping**:
+    ```nginx
+    http {
+        # Time an idle connection is kept open by the server
+        keepalive_timeout 65;   
+        
+        # Max number of requests allowed over a single keep-alive connection
+        keepalive_requests 100; 
+    }
+    ```
+
 ## QUIC
 
 QUIC (Quick UDP Internet Connections) is tailored to facilitate http communication with a number of improvements based on http characteristics.
@@ -135,9 +204,15 @@ QUIC:
 |URL is a subset of URI|URI is the superset of URL $\text{URL} \in \text{URI}$.|
 |Example: https://www.geeksforgeeks.org/ (this is just a server addr, not indicative of any resource, can only said to be a URL)|Example: https://media.geeksforgeeks.org/wp-content/uploads/20200205203241/gfg30.jpg (this can be said URL as well as URI for it contains the addr of an actual resource: a `.jpg` image)|
 
-<div style="display: flex; justify-content: center;">
-      <img src="imgs/uri_vs_url.png" width="30%" height="30%" alt="uri_vs_url" />
-</div>
-</br>
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 80, 'rankSpacing': 80}}}%%
+flowchart TD
+    subgraph URI ["URI (Uniform Resource Identifier)"]
+        URI_Example["Example: Your Name"]
+        subgraph URL ["URL (Uniform Resource Locator)"]
+            URL_Example["Example: Your address"]
+        end
+    end
+```
 
 URN (Uniform Resource Name).

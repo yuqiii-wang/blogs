@@ -44,20 +44,6 @@ The `main()` function ends;
 execute `System.exit();`
 hit error/exception that terminates JVM
 
-## JVM vs JIT
-
-Java Virtual Machine (JVM) is used in the java runtime environment(JRE). 
-The original JVM was conceived as a bytecode interpreter.
-
-Java Just In Time (JIT) compiler takes to be executed **byte code** and compiles it into **machine code** (which will actually get executed) at run time.
-
-In other words, the compiled `.class` files contain java byte code that is executable/compatible on multiple platforms; JIT converts the java byte code into machine code when the `.class` is loaded/executed.
-
-<div style="display: flex; justify-content: center;">
-      <img src="imgs/java_jit_vs_jvm.png" width="40%" height="30%" alt="java_jit_vs_jvm" />
-</div>
-</br>
-
 ## JVM Virtual Memory Layout
 
 <div style="display: flex; justify-content: center;">
@@ -98,7 +84,7 @@ Java Native Interface (JNI) calls the native stack.
 
 Java through this can call C/C++ code.
 
-To use it, basically decalre a class that loads binary libs by `System.loadLibrary`, and invoke by `public native String getSystemTime();`.
+To use it, basically declare a class that loads binary libs by `System.loadLibrary`, and invoke by `public native String getSystemTime();`.
 
 ```java
 public class DateTimeUtils {

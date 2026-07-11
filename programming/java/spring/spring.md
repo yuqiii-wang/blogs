@@ -23,11 +23,11 @@
 
 ### Spring Version 3.x.x vs 2.x.x
 
-|Feature/Component|Spring Boot 2.x|Spring Boot 3.x|
-|:---|:---|:---|
-|Java Baseline|Java 8 (supports up to Java 19)|Java 17 (supports Java 21+)|
-|Spring Framework|Spring Framework 5.x|Spring Framework 6.x|
-|Enterprise Java|Java EE / J2EE (`javax.*`)|Jakarta EE 10 (`jakarta.*`)|
+|Feature/Component|Spring Boot 2.x|Spring Boot 3.x|Spring Boot 4.x|
+|:---|:---|:---|:---|
+|Java Baseline|Java 8 (supports up to Java 19)|Java 17 (supports Java 21+)|Java 17 minimum (Java 21+ recommended)|
+|Spring Framework|Spring Framework 5.x|Spring Framework 6.x|Spring Framework 7.x|
+|Enterprise Java|Java EE / J2EE (`javax.*`)|Jakarta EE 10 (`jakarta.*`)|Jakarta EE 11 (`jakarta.*`, Servlet 6.1)|
 
 where
 

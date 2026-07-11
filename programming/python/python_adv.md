@@ -472,7 +472,10 @@ with postgresql_connection('mydatabase', 'myuser', 'mypassword') as conn:
 
 ### Event Loop
 
-The event loop is the core machinery of `asyncio`. It coordinates asynchronous tasks, handles network I/O, and manages subprocesses. Python's `asyncio` provides two primary event loop implementations, mapping to different underlying OS systems.
+The event loop is the core machinery of `asyncio`. It coordinates asynchronous tasks, handles network I/O, and manages subprocesses.
+Conceptually, the event loop is an infinite while loop running in a **single thread**. `asyncio` is the orchestrator what task to run at what time.
+
+Python's `asyncio` provides two primary event loop implementations, mapping to different underlying OS systems.
 
 #### `SelectorEventLoop`
 
@@ -502,3 +505,36 @@ else:
     # Default on UNIX (SelectorEventLoop)
     asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
 ```
+
+#### `get_running_loop` vs `get_event_loop`
+
+Since Python3.10+, `get_running_loop()` is preferred.
+`get_event_loop` can be complicated for it tries to automatically create a loop if one isn't found, it can lead to hidden bugs where a new loop is accidentally created than reusing the expected.
+
+Once the loop reference is obtained `loop = asyncio.get_running_loop()`, dispatch tasks in `loop.run_in_executor(...)` and wait for it to return. 
+
+```py
+import asyncio
+import time
+
+def blocking_io():
+    # This would normally block the entire loop
+    time.sleep(2)
+    return "Done!"
+
+async def main():
+    loop = asyncio.get_running_loop()
+    
+    # Run the blocking function in a default ThreadPoolExecutor
+    # The 'None' argument tells it to use the default executor
+    result = await loop.run_in_executor(None, blocking_io)
+    print(result)
+
+asyncio.run(main())
+```
+
+#### Event Loop and Coroutines
+
+Event loop: coroutine orcherstrator, e.g., `loop = asyncio.get_running_loop()` is the orchestator
+Execution/run func: coroutine func, e.g., `blocking_io` is the coroutine
+

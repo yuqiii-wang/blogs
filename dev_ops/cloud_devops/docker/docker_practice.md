@@ -218,6 +218,16 @@ docker exec yuqi_ubuntu_terminal bash -c "echo 'hello world'"
 docker stop yuqi_ubuntu_terminal
 ```
 
+### Docker Compose
+
+#### `restart` vs `up`
+
+* `docker compose restart` — sends `SIGTERM`/`SIGKILL` to the running container process and restarts it. The container image and config stay the same; it just re-reads bind-mounted files on start.
+* `docker compose up -d` — reconciles the desired state against docker-compose.yml. For each service it:
+	* Creates the container if it doesn't exist
+	* Recreates it if the image, env vars, ports, volumes, or compose config changed
+	* Leaves it alone if nothing changed (already running with matching config)
+
 ## Check Docker Health
 
 Check Docker

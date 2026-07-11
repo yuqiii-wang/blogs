@@ -59,6 +59,10 @@ For example, a bank group has many branches in different countries and regions. 
 
 Motivations include security ownership change to another investor,
 
+* Internal trade
+
+Trades are done within the same legal entity but to diff books/departments.
+
 ## Trading Platforms
 
 * Exchange is a centralized platform for trading such as the New York Stock Exchange.

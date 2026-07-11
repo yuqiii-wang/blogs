@@ -1,24 +1,16 @@
 # Repurchase Agreement (REPO) Risks
 
+Broadly speaking, there are two types of risk
+
 * Counterparty / Credit Risk
-
-Counterparty risk is risk of default due to financial difficulty or withdrawal from business
-Banks internally rate all counterparties and assign exposure limits to each, by firm and sector
-
-* Collateral risk / Issuer risk
-
-Quality of collateral held suffering due to decline in fortunes of issuer;
-lower grade collateral trades at a higher spread to government repo rate
-
+  * Counterparty risk is risk of default due to financial difficulty or withdrawal from business
+    Banks internally rate all counterparties and assign exposure limits to each, by firm and sector
 * Market Risk
-
-Risk exposure from changes in market levels, interest rates, asset values, etc.
-One reason for continuing popularity in stock lending
-
-* FX risk
-
-Cross-currency repo, or a stock loan collateralized with
-assets denominated in a different currency
+  * Collateral risk / Issuer risk
+    Risk exposure from changes in market levels, interest rates, asset values, etc.
+    One reason for continuing popularity in stock lending
+  * FX risk
+    Cross-currency repo, or a stock loan collateralized with assets denominated in a different currency
 
 ## Trading and Hedging Strategies
 
@@ -32,17 +24,17 @@ Buy both so that future yield would be neutral to avoid drastic rises or falls i
 Gov bonds usually have high credibility.
 They can be used to hedge risks.
 
-Typically, use SOFR (for USD treasury bond) or LIBOR (for British treasury bond) as the benchmark to measure the risk of a bond. 
+Typically, use SOFR (for USD treasury bond) or LIBOR (for British treasury bond) as the benchmark to measure the risk of a bond.
 A haircut/spread/added floating rate can be applied on top of SOFR or LIBOR as the risk hedging quantified strategy.
 
 * Matched Book Trading
 
 Make sure underlying securities have its value as stated by daily monitoring.
 
-Counterparties are monitored as well. 
+Counterparties are monitored as well.
 
 Consider *Prime*: prime bonds/trades/clients are private agreements that establish good trust-worthy relationships with the counterparties.
-The prime agreements offer good repo rate to counterparties. 
+The prime agreements offer good repo rate to counterparties.
 
 * Derivative Market Anticipation
 
@@ -86,16 +78,16 @@ NPV can be used as a risk indicator before a security (typically bonds) mature.
 In practice, rather than using one NPV targeting one particular date, risks are mapped to the maturity date's nearest tenor.
 Only close-to-yield/mature securities should receive high attention; for securities' yield/maturity dates far in the future, the attention granularity level is month/year, not days.
 
-|Tenor $n$|Rate|
-|-|-|
-|$\text{o}/\text{n}$ (overnight)|$r_0$|
-|$\text{t}/\text{n}$ (tomorrow)|$r_1$|
-|2 days|$r_2$|
-|5 days|$r_5$|
-|1 week|$r_7$|
-|2 weeks|$r_{14}$|
-|...|...|
-|30 years|$r_{10950}$|
+| Tenor$n$                        | Rate          |
+| --------------------------------- | ------------- |
+| $\text{o}/\text{n}$ (overnight) | $r_0$       |
+| $\text{t}/\text{n}$ (tomorrow)  | $r_1$       |
+| 2 days                            | $r_2$       |
+| 5 days                            | $r_5$       |
+| 1 week                            | $r_7$       |
+| 2 weeks                           | $r_{14}$    |
+| ...                               | ...           |
+| 30 years                          | $r_{10950}$ |
 
 where
 
@@ -104,7 +96,7 @@ where
 
 Set $t$ as the remaining days to maturity, $t_{\text{lower}}$ and $t_{\text{upper}}$ as the lower nearest tenor and upper nearest tenor, e.g., $t=10$ sees $t_{\text{lower}}=n_{\text{1week}}$ and $t_{\text{upper}}=n_{\text{2week}}$.
 
-Define a ratio $\gamma_{\text{lower}}$ and $\gamma_{\text{upper}}=1-\gamma_{\text{lower}}$ that splits NPV as risk to 
+Define a ratio $\gamma_{\text{lower}}$ and $\gamma_{\text{upper}}=1-\gamma_{\text{lower}}$ that splits NPV as risk to
 
 $$
 \gamma_{\text{lower}} =
@@ -172,51 +164,60 @@ They might review it quarterly to update the risk weights with examined market c
 
 In the example below, US Treasure bond REPO by USD purchase has the lowest risk, while lower-quality bond REPO trading in non-USD currency has much higher risks.
 
-|Currency|Bond Type|Bond Ratings, e.g., S&P|Days to REPO End Date|Days to Bond Maturity|Risk|
-|-|-|-|-|-|-|
-|USD|GOV|AAA|Tomorrow|Tomorrow|0.01|
-|USD|CORP|AAA|Tomorrow|Tomorrow|0.02|
-|USD|CORP|AA+|Tomorrow|Tomorrow|0.05|
-|...|...|...|...|...|...|
-|USD|CORP|AA-|1 month|1 year|17|
-|USD|CORP|A+|1 month|1 year|23|
-|...|...|...|...|...|...|
-|USD|CORP|BBB-|1 month|1 year|52|
-|USD|CORP|BBB-|2 months|1 year|63|
-|...|...|...|...|...|...|
-|USD|CORP|BBB-|1 month|3 years|55|
-|USD|CORP|BBB-|1 month|7 years|59|
-|...|...|...|...|...|...|
-|CNY|GOV|AAA|Tomorrow|Tomorrow|0.02|
-|CNY|CORP|AAA|Tomorrow|Tomorrow|0.03|
-|...|...|...|...|...|...|
-|CNY|CORP|BBB-|1 month|3 years|57|
-|CNY|CORP|BBB-|1 month|7 years|61|
-|...|...|...|...|...|...|
-|VND|CORP|BBB-|1 month|3 years|138|
-|VND|CORP|BBB-|1 month|7 years|145|
-|VND|CORP|BBB-|2 month|3 years|149|
+| Currency | Bond Type | Bond Ratings, e.g., S&P | Days to REPO End Date | Days to Bond Maturity | Risk |
+| -------- | --------- | ----------------------- | --------------------- | --------------------- | ---- |
+| USD      | GOV       | AAA                     | Tomorrow              | Tomorrow              | 0.01 |
+| USD      | CORP      | AAA                     | Tomorrow              | Tomorrow              | 0.02 |
+| USD      | CORP      | AA+                     | Tomorrow              | Tomorrow              | 0.05 |
+| ...      | ...       | ...                     | ...                   | ...                   | ...  |
+| USD      | CORP      | AA-                     | 1 month               | 1 year                | 17   |
+| USD      | CORP      | A+                      | 1 month               | 1 year                | 23   |
+| ...      | ...       | ...                     | ...                   | ...                   | ...  |
+| USD      | CORP      | BBB-                    | 1 month               | 1 year                | 52   |
+| USD      | CORP      | BBB-                    | 2 months              | 1 year                | 63   |
+| ...      | ...       | ...                     | ...                   | ...                   | ...  |
+| USD      | CORP      | BBB-                    | 1 month               | 3 years               | 55   |
+| USD      | CORP      | BBB-                    | 1 month               | 7 years               | 59   |
+| ...      | ...       | ...                     | ...                   | ...                   | ...  |
+| CNY      | GOV       | AAA                     | Tomorrow              | Tomorrow              | 0.02 |
+| CNY      | CORP      | AAA                     | Tomorrow              | Tomorrow              | 0.03 |
+| ...      | ...       | ...                     | ...                   | ...                   | ...  |
+| CNY      | CORP      | BBB-                    | 1 month               | 3 years               | 57   |
+| CNY      | CORP      | BBB-                    | 1 month               | 7 years               | 61   |
+| ...      | ...       | ...                     | ...                   | ...                   | ...  |
+| VND      | CORP      | BBB-                    | 1 month               | 3 years               | 138  |
+| VND      | CORP      | BBB-                    | 1 month               | 7 years               | 145  |
+| VND      | CORP      | BBB-                    | 2 month               | 3 years               | 149  |
 
 where
 
-||S&P|Moody's|
-|-|-|-|
-|Top Quality|AAA|Aaa|
-|High Quality|AA+|Aa1|
-||AA|Aa2|
-||AA-|Aa1|
-|Upper Medium|A+|A1|
-||A|A2|
-||A-|A1|
-|Medium|BBB+|Baa1|
-||BBB|Baa2|
-||BBB-|Baa3|
+|              | S&P  | Moody's |
+| ------------ | ---- | ------- |
+| Top Quality  | AAA  | Aaa     |
+| High Quality | AA+  | Aa1     |
+|              | AA   | Aa2     |
+|              | AA-  | Aa1     |
+| Upper Medium | A+   | A1      |
+|              | A    | A2      |
+|              | A-   | A1      |
+| Medium       | BBB+ | Baa1    |
+|              | BBB  | Baa2    |
+|              | BBB- | Baa3    |
 
 ## Counterparty Risk: Counterparty Exposure
 
 If a counterparty sees default on one security (e.g., bond), this counterparty might be insolvent at this moment, and all trades with this counterparty are at risk.
 
 The total risk exposure to a counterparty can be computed by simply summing up all PVs of all assets traded with this counterparty.
+
+### Repo Trade Exposure
+
+$$
+\begin{align*}
+\text{Exposure}&=\underbrace{\text{BondMarketValue}-\text{CollateralAmount}-\text{REPOAccruedInterest}+\text{BondAccruedInterest}}_{MTM} \\
+&+\text{BondMarketValue}\times\text{FluctuationWeight}
+\end{align*}
+$$
 
 ### Weighted PVs as Counterparty Risks
 
@@ -229,18 +230,3 @@ An agreement lists what action to take to hedge default risks (e.g., provide pro
 An agreement states that what collateral this trade's underlying security is based on, or purely by credit.
 
 One manually set up weights per trade per different agreements.
-
-* Institution Ratings
-
-Ratings by Moody, Fitch and S&P can be considered a good source of how risky a security is.
-
-* FX
-
-If the settlement currency is highly volatile, should add additional currency fluctuation risks.
-FX fluctuation can be simply computed as recent std variance.
-Besides, should monitor politics and economy of this currency to avoid tail risks.
-
-* Time to Yield/Mature
-
-Usually, the shorter a bond will mature, the less risk this bond inherits.
-
