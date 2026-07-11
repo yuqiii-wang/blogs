@@ -1,0 +1,967 @@
+<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1252px" height="912px" viewBox="-0.5 -0.5 1252 912" content="&lt;mxfile&gt;&lt;diagram id=&quot;B3oVapBCNJkWji2y0yci&quot; name=&quot;Page-1&quot;&gt;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&lt;/diagram&gt;&lt;/mxfile&gt;">
+    <defs/>
+    <g>
+        <path d="M 265 30 L 333.63 30" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 338.88 30 L 331.88 33.5 L 333.63 30 L 331.88 26.5 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="25" y="0" width="240" height="60" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 238px; height: 1px; padding-top: 30px; margin-left: 26px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <font style="font-size: 15px;">
+                                    python source code
+                                    <br/>
+                                    fibonacci.py
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="145" y="34" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    python source code...
+                </text>
+            </switch>
+        </g>
+        <rect x="0" y="100" width="265" height="120" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" stroke-dasharray="3 3" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 263px; height: 1px; padding-top: 160px; margin-left: 2px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <div style="color: rgb(218, 218, 218); background-color: rgb(30, 30, 30); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; line-height: 21px;">
+                                    <div style="">
+                                        <div style="line-height: 21px;">
+                                            <div>
+                                                <span style="color: #569cd6;">
+                                                    def
+                                                </span>
+                                                <span style="color: #dcdcaa;">
+                                                    fib
+                                                </span>
+                                                <span style="color: #b4b4b4;">
+                                                    (
+                                                </span>
+                                                <span style="color: #9a9a9a;">
+                                                    n
+                                                </span>
+                                                <span style="color: #b4b4b4;">
+                                                    ):
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span style="color: #d8a0df;">
+                                                    if
+                                                </span>
+                                                <span style="color: #9a9a9a;">
+                                                    n
+                                                </span>
+                                                <span style="color: #b4b4b4;">
+                                                    &lt;
+                                                </span>
+                                                <span style="color: #b5cea8;">
+                                                    2
+                                                </span>
+                                                <span style="color: #b4b4b4;">
+                                                    :
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span style="color: #d8a0df;">
+                                                    return
+                                                </span>
+                                                <span style="color: #9a9a9a;">
+                                                    n
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span style="color: #d8a0df;">
+                                                    else
+                                                </span>
+                                                <span style="color: #b4b4b4;">
+                                                    :
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span style="color: #dcdcaa;">
+                                                    fib
+                                                </span>
+                                                <span style="color: #b4b4b4;">
+                                                    (
+                                                </span>
+                                                <span style="color: #9a9a9a;">
+                                                    n
+                                                </span>
+                                                <span style="color: #b4b4b4;">
+                                                    -
+                                                </span>
+                                                <span style="color: #b5cea8;">
+                                                    2
+                                                </span>
+                                                <span style="color: #b4b4b4;">
+                                                    )
+                                                </span>
+                                                <span style="color: #b4b4b4;">
+                                                    +
+                                                </span>
+                                                <span style="color: #dcdcaa;">
+                                                    fib
+                                                </span>
+                                                <span style="color: #b4b4b4;">
+                                                    (
+                                                </span>
+                                                <span style="color: #9a9a9a;">
+                                                    n
+                                                </span>
+                                                <span style="color: #b4b4b4;">
+                                                    -
+                                                </span>
+                                                <span style="color: #b5cea8;">
+                                                    1
+                                                </span>
+                                                <span style="color: #b4b4b4;">
+                                                    )
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="2" y="164" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px">
+                    def fib(n):...
+                </text>
+            </switch>
+        </g>
+        <path d="M 145 100 L 145 66.37" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" stroke-dasharray="3 3" pointer-events="stroke"/>
+        <path d="M 145 61.12 L 148.5 68.12 L 145 66.37 L 141.5 68.12 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 460 30 L 728.63 30" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 733.88 30 L 726.88 33.5 L 728.63 30 L 726.88 26.5 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="340" y="0" width="120" height="60" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 118px; height: 1px; padding-top: 30px; margin-left: 341px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <font style="font-size: 15px;">
+                                    python byte code
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="400" y="34" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    python byte code
+                </text>
+            </switch>
+        </g>
+        <path d="M 400 100 L 400 66.37" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" stroke-dasharray="3 3" pointer-events="stroke"/>
+        <path d="M 400 61.12 L 403.5 68.12 L 400 66.37 L 396.5 68.12 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="285" y="100" width="230" height="280" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" stroke-dasharray="3 3" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 228px; height: 1px; padding-top: 240px; margin-left: 286px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <div style="background-color: rgb(30, 30, 30); line-height: 21px;">
+                                    <div style="line-height: 21px;">
+                                        <div style="font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; font-weight: normal; text-align: justify; color: rgb(218, 218, 218);">
+                                            <span style="color: #dcdcaa;">
+                                                0
+                                            </span>
+                                            <span style="color: #b5cea8;">
+                                                0
+                                            </span>
+                                            <span style="color: #ce9178;">
+                                                RESUME
+                                            </span>
+                                            <span style="color: #b5cea8;">
+                                                0
+                                            </span>
+                                        </div>
+                                        <div style="text-align: justify;">
+                                            <font face="Menlo, Monaco, Courier New, monospace">
+                                                <span style="font-size: 14px;">
+                                                    <br/>
+                                                </span>
+                                            </font>
+                                        </div>
+                                        <div style="text-align: justify; font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; font-weight: normal; color: rgb(218, 218, 218);">
+                                            <span style="color: #dcdcaa;">
+                                                2
+                                            </span>
+                                            <span style="color: #b5cea8;">
+                                                2
+                                            </span>
+                                            <span style="color: #ce9178;">
+                                                LOAD_CONST
+                                            </span>
+                                            <span style="color: #b5cea8;">
+                                                0
+                                            </span>
+                                        </div>
+                                        <div style="text-align: justify; font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; font-weight: normal;">
+                                            <span style="color: rgb(220, 220, 170);">
+                                                4
+                                            </span>
+                                            <span style="color: rgb(206, 145, 120);">
+                                                MAKE_FUNCTION
+                                            </span>
+                                            <span style="color: rgb(181, 206, 168);">
+                                                0
+                                            </span>
+                                        </div>
+                                        <div style="text-align: justify; font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; font-weight: normal; color: rgb(218, 218, 218);">
+                                            <span style="color: #dcdcaa;">
+                                                6
+                                            </span>
+                                            <span style="color: #ce9178;">
+                                                STORE_NAME
+                                            </span>
+                                            <span style="color: #b5cea8;">
+                                                0
+                                            </span>
+                                            (fib)
+                                        </div>
+                                        <div style="text-align: justify; font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; font-weight: normal; color: rgb(218, 218, 218);">
+                                            <span style="color: rgb(220, 220, 170);">
+                                                4
+                                            </span>
+                                            <span style="color: rgb(181, 206, 168);">
+                                                8
+                                            </span>
+                                            <span style="color: rgb(206, 145, 120);">
+                                                PUSH_NULL
+                                            </span>
+                                        </div>
+                                        <div style="text-align: justify; font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; font-weight: normal; color: rgb(218, 218, 218);">
+                                            <span style="color: #dcdcaa;">
+                                                10
+                                            </span>
+                                            <span style="color: #ce9178;">
+                                                LOAD_NAME
+                                            </span>
+                                            <span style="color: #b5cea8;">
+                                                0
+                                            </span>
+                                            (fib)
+                                        </div>
+                                        <div style="text-align: justify; font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; font-weight: normal; color: rgb(218, 218, 218);">
+                                            <span style="color: #dcdcaa;">
+                                                12
+                                            </span>
+                                            <span style="color: #ce9178;">
+                                                LOAD_CONST
+                                            </span>
+                                            <span style="color: #b5cea8;">
+                                                1
+                                            </span>
+                                            (10)
+                                        </div>
+                                        <div style="text-align: justify; font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; font-weight: normal; color: rgb(218, 218, 218);">
+                                            <span style="color: #dcdcaa;">
+                                                14
+                                            </span>
+                                            <span style="color: #ce9178;">
+                                                PRECALL
+                                            </span>
+                                            <span style="color: #b5cea8;">
+                                                1
+                                            </span>
+                                        </div>
+                                        <div style="text-align: justify; font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; font-weight: normal; color: rgb(218, 218, 218);">
+                                            <span style="color: #dcdcaa;">
+                                                18
+                                            </span>
+                                            <span style="color: #ce9178;">
+                                                CALL
+                                            </span>
+                                            <span style="color: #b5cea8;">
+                                                1
+                                            </span>
+                                        </div>
+                                        <div style="text-align: justify; font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; font-weight: normal; color: rgb(218, 218, 218);">
+                                            <span style="color: #dcdcaa;">
+                                                28
+                                            </span>
+                                            <span style="color: #ce9178;">
+                                                POP_TOP
+                                            </span>
+                                        </div>
+                                        <div style="text-align: justify; font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; font-weight: normal; color: rgb(218, 218, 218);">
+                                            <span style="color: #dcdcaa;">
+                                                30
+                                            </span>
+                                            <span style="color: #ce9178;">
+                                                LOAD_CONST
+                                            </span>
+                                            <span style="color: #b5cea8;">
+                                                2
+                                            </span>
+                                            (None)
+                                        </div>
+                                        <div style="text-align: justify; font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px; font-weight: normal; color: rgb(218, 218, 218);">
+                                            <span style="color: #dcdcaa;">
+                                                32
+                                            </span>
+                                            <span style="color: #ce9178;">
+                                                RETURN_VALUE
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="400" y="244" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    0           0 RESUME...
+                </text>
+            </switch>
+        </g>
+        <rect x="735" y="0" width="300" height="60" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 298px; height: 1px; padding-top: 30px; margin-left: 736px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <font style="font-size: 15px;">
+                                    exec by
+                                    <br/>
+                                    python virtual machine
+                                </font>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="885" y="34" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">
+                    exec by...
+                </text>
+            </switch>
+        </g>
+        <path d="M 885.67 100 L 885.11 66.37" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" stroke-dasharray="3 3" pointer-events="stroke"/>
+        <path d="M 885.02 61.12 L 888.64 68.06 L 885.11 66.37 L 881.64 68.18 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="535" y="100" width="715" height="810" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" stroke-dasharray="3 3" pointer-events="all"/>
+        <g transform="translate(-0.5 -0.5)">
+            <switch>
+                <foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 713px; height: 1px; padding-top: 505px; margin-left: 537px;">
+                        <div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;">
+                            <div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: normal; overflow-wrap: normal;">
+                                <div style="background-color: rgb(30, 30, 30); line-height: 21px;">
+                                    <div style="">
+                                        <div style="line-height: 21px;">
+                                            <div style="line-height: 21px;">
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    PyObject
+                                                    <span style="color: #b4b4b4;">
+                                                        *
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: #c8c8c8;">
+                                                        PyEval_EvalFrameEx
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    PyFrameObject
+                                                    <span style="color: #b4b4b4;">
+                                                        *
+                                                    </span>
+                                                    <span style="color: #dcdcaa;">
+                                                        f
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        ,
+                                                    </span>
+                                                    <span style="color: #569cd6;">
+                                                        int
+                                                    </span>
+                                                    throwflag
+                                                    <span style="color: #b4b4b4;">
+                                                        )
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        {
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: #d8a0df;">
+                                                        for
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (;;)
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        {
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: #57a64a;">
+                                                        /* Fetch the next opcode */
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #569cd6;">
+                                                        int
+                                                    </span>
+                                                    opcode
+                                                    <span style="color: #b4b4b4;">
+                                                        =
+                                                    </span>
+                                                    <span style="color: #dcdcaa;">
+                                                        NEXTOP
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        ();
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #569cd6;">
+                                                        int
+                                                    </span>
+                                                    oparg
+                                                    <span style="color: #b4b4b4;">
+                                                        ;
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify;">
+                                                    <font color="#dadada" face="Menlo, Monaco, Courier New, monospace">
+                                                        <span style="font-size: 14px;">
+                                                            <br/>
+                                                        </span>
+                                                    </font>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #d8a0df;">
+                                                        switch
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    opcode
+                                                    <span style="color: #b4b4b4;">
+                                                        )
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        {
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #57a64a;">
+                                                        /* ... other opcodes ... */
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #d8a0df;">
+                                                        case
+                                                    </span>
+                                                    LOAD_CONST
+                                                    <span style="color: #b4b4b4;">
+                                                        :
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #57a64a;">
+                                                        /* Handle LOAD_CONST opcode */
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    PyObject
+                                                    <span style="color: #b4b4b4;">
+                                                        *
+                                                    </span>
+                                                    const_value
+                                                    <span style="color: #b4b4b4;">
+                                                        =
+                                                    </span>
+                                                    <span style="color: #dcdcaa;">
+                                                        GETITEM
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    consts
+                                                    <span style="color: #b4b4b4;">
+                                                        ,
+                                                    </span>
+                                                    oparg
+                                                    <span style="color: #b4b4b4;">
+                                                        );
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #dcdcaa;">
+                                                        PUSH
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    const_value
+                                                    <span style="color: #b4b4b4;">
+                                                        );
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #dcdcaa;">
+                                                        Py_INCREF
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    const_value
+                                                    <span style="color: #b4b4b4;">
+                                                        );
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #d8a0df;">
+                                                        break
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        ;
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #d8a0df;">
+                                                        case
+                                                    </span>
+                                                    LOAD_NAME
+                                                    <span style="color: #b4b4b4;">
+                                                        :
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    PyObject
+                                                    <span style="color: #b4b4b4;">
+                                                        *
+                                                    </span>
+                                                    name
+                                                    <span style="color: #b4b4b4;">
+                                                        =
+                                                    </span>
+                                                    <span style="color: #dcdcaa;">
+                                                        GETITEM
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    names
+                                                    <span style="color: #b4b4b4;">
+                                                        ,
+                                                    </span>
+                                                    oparg
+                                                    <span style="color: #b4b4b4;">
+                                                        );
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    PyObject
+                                                    <span style="color: #b4b4b4;">
+                                                        *
+                                                    </span>
+                                                    value
+                                                    <span style="color: #b4b4b4;">
+                                                        =
+                                                    </span>
+                                                    <span style="color: #dcdcaa;">
+                                                        PyDict_GetItem
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    <span style="color: #9cdcfe;">
+                                                        f
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        -&gt;
+                                                    </span>
+                                                    f_globals
+                                                    <span style="color: #b4b4b4;">
+                                                        ,
+                                                    </span>
+                                                    name
+                                                    <span style="color: #b4b4b4;">
+                                                        );
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #d8a0df;">
+                                                        if
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    value
+                                                    <span style="color: #b4b4b4;">
+                                                        ==
+                                                    </span>
+                                                    <span style="color: #beb7ff;">
+                                                        NULL
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        )
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        {
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    value
+                                                    <span style="color: #b4b4b4;">
+                                                        =
+                                                    </span>
+                                                    <span style="color: #dcdcaa;">
+                                                        PyDict_GetItem
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    <span style="color: #9cdcfe;">
+                                                        f
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        -&gt;
+                                                    </span>
+                                                    f_builtins
+                                                    <span style="color: #b4b4b4;">
+                                                        ,
+                                                    </span>
+                                                    name
+                                                    <span style="color: #b4b4b4;">
+                                                        );
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #d8a0df;">
+                                                        if
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    value
+                                                    <span style="color: #b4b4b4;">
+                                                        ==
+                                                    </span>
+                                                    <span style="color: #beb7ff;">
+                                                        NULL
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        )
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        {
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #dcdcaa;">
+                                                        format_exc_check_arg
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    PyExc_NameError
+                                                    <span style="color: rgb(180, 180, 180);">
+                                                        ,
+                                                    </span>
+                                                    NAME_ERROR_MSG
+                                                    <span style="color: rgb(180, 180, 180);">
+                                                        ,
+                                                    </span>
+                                                    name
+                                                    <span style="color: rgb(180, 180, 180);">
+                                                        );
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #d8a0df;">
+                                                        goto
+                                                    </span>
+                                                    <span style="color: #c8c8c8;">
+                                                        error
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        ;
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        }
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        }
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #dcdcaa;">
+                                                        Py_INCREF
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    value
+                                                    <span style="color: #b4b4b4;">
+                                                        );
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #c8c8c8;">
+                                                        PUSH
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    value
+                                                    <span style="color: #b4b4b4;">
+                                                        );
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #d8a0df;">
+                                                        break
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        ;
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #57a64a;">
+                                                        /* ... other opcodes ... */
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #d8a0df;">
+                                                        default
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        :
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #dcdcaa;">
+                                                        PyErr_Format
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        (
+                                                    </span>
+                                                    PyExc_SystemError
+                                                    <span style="color: #b4b4b4;">
+                                                        ,
+                                                    </span>
+                                                    <span style="color: #e8c9bb;">
+                                                        "
+                                                    </span>
+                                                    <span style="color: #ce9178;">
+                                                        Unknown opcode
+                                                    </span>
+                                                    <span style="color: #9cdcfe;">
+                                                        %d
+                                                    </span>
+                                                    <span style="color: #e8c9bb;">
+                                                        "
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        ,
+                                                    </span>
+                                                    opcode
+                                                    <span style="color: #b4b4b4;">
+                                                        );
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #d8a0df;">
+                                                        goto
+                                                    </span>
+                                                    error
+                                                    <span style="color: #b4b4b4;">
+                                                        ;
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        }
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: rgb(87, 166, 74);">
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        }
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: #c8c8c8;">
+                                                        error
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        :
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: #57a64a;">
+                                                        /* Error handling code */
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: #d8a0df;">
+                                                        return
+                                                    </span>
+                                                    <span style="color: #beb7ff;">
+                                                        NULL
+                                                    </span>
+                                                    <span style="color: #b4b4b4;">
+                                                        ;
+                                                    </span>
+                                                </div>
+                                                <div style="text-align: justify; color: rgb(218, 218, 218); font-family: Menlo, Monaco, &quot;Courier New&quot;, monospace; font-size: 14px;">
+                                                    <span style="color: #b4b4b4;">
+                                                        }
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </foreignObject>
+                <text x="537" y="509" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px">
+                    PyObject *...
+                </text>
+            </switch>
+        </g>
+    </g>
+    <switch>
+        <g requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"/>
+        <a transform="translate(0,-5)" xlink:href="https://www.diagrams.net/doc/faq/svg-export-text-problems" target="_blank">
+            <text text-anchor="middle" font-size="10px" x="50%" y="100%">
+                Text is not SVG - cannot display
+            </text>
+        </a>
+    </switch>
+</svg>
